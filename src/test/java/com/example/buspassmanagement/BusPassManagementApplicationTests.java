@@ -1,0 +1,13 @@
+package com.example.buspassmanagement;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class BusPassManagementApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}

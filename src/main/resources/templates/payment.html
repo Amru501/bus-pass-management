@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" 
+      xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Payment Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
+          rel="stylesheet" 
+          crossorigin="anonymous">
+</head>
+<body>
+
+<div class="container mt-5">
+    <a th:href="@{/}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
+    
+    <h2 class="mb-4">
+        <span sec:authorize="hasAuthority('ROLE_ADMIN')">All Payment Records</span>
+        <span sec:authorize="!hasAuthority('ROLE_ADMIN')">My Installments</span>
+    </h2>
+
+    <!-- Success/Error Messages (from redirects) -->
+    <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
+
+    <!-- ADMIN ACTION BUTTONS -->
+    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="mb-4">
+        <a th:href="@{/payments/add}" class="btn btn-danger shadow-sm">Create New Fee Schedule</a>
+    </div>
+
+    <!-- STUDENT ACTIONS: Pay Full Sum -->
+    <div sec:authorize="hasAuthority('ROLE_USER')" class="mb-4 p-3 bg-light border rounded">
+        <h5 class="mb-3">Quick Pay Options</h5>
+        <!-- Form to submit a POST request for full payment -->
+        <form th:action="@{/payments/pay-full}" method="post" 
+              onsubmit="return confirm('WARNING: This will mark all pending installments as paid and create one single record. Proceed with full payment?');">
+            
+            <button type="submit" class="btn btn-success btn-lg shadow">Pay Full Outstanding Sum Now</button>
+            <span class="text-muted ms-3 small">— Clears all pending payments for your account.</span>
+        </form>
+    </div>
+
+    <!-- MAIN PAYMENT TABLE -->
+    <!-- 🔑 FIX: Check if payments list is empty/present before attempting to draw the table -->
+    <div th:if="${#lists.isEmpty(payments)}" class="alert alert-info">
+        No payment records found for your account or system.
+    </div>
+    
+    <div th:unless="${#lists.isEmpty(payments)}" class="table-responsive">
+        <table class="table table-striped table-hover shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <!-- Show User Name only if Admin -->
+                    <th sec:authorize="hasAuthority('ROLE_ADMIN')">User</th>
+                    <th>Amount</th>
+                    <th>Due Date</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="p : ${payments}">
+                    <td th:text="${p.id}">1</td>
+                    <td sec:authorize="hasAuthority('ROLE_ADMIN')" 
+                        th:text="${p.user != null ? p.user.name : 'N/A (User Deleted)'}">Student Name</td>
+                        
+                    <td th:text="${'₹ ' + #numbers.formatDecimal(p.amount, 1, 'COMMA', 2, 'POINT')}">₹ 1500.00</td>
+                    <td th:text="${#temporals.format(p.dueDate, 'dd-MMM-yyyy')}">20-Dec-2025</td>
+                    
+                    <td>
+                        <!-- Status Colors -->
+                        <th:block th:if="${p.status != null}">
+                            <span th:if="${p.status.name() == 'PAID'}" class="badge bg-success">PAID</span>
+                            <span th:if="${p.status.name() == 'PENDING'}" class="badge bg-warning text-dark">PENDING</span>
+                            <span th:if="${p.status.name() == 'OVERDUE'}" class="badge bg-danger">OVERDUE</span>
+                            <span th:if="${p.status.name() == 'CANCELLED'}" class="badge bg-secondary">CANCELLED</span>
+                        </th:block>
+                        <th:block th:unless="${p.status != null}">
+                            <span class="badge bg-info">N/A</span>
+                        </th:block>
+                    </td>
+                    
+                    <td>
+                        <!-- Mark as Paid button (User Role) -->
+                        <div sec:authorize="hasAuthority('ROLE_USER') and ${p.status != null and p.status.name() == 'PENDING'}">
+                            <a th:href="@{/payments/pay/{id}(id=${p.id})}" class="btn btn-sm btn-success">Mark as Paid</a>
+                        </div>
+                        <!-- Delete button (Admin Role) -->
+                        <div sec:authorize="hasAuthority('ROLE_ADMIN')">
+                            <a th:href="@{/payments/delete/{id}(id=${p.id})}" class="btn btn-sm btn-danger"
+                               th:onclick="|return confirm('Delete payment ID: ${p.id}?');|">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+</body>
+</html>
