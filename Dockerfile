@@ -8,6 +8,11 @@ WORKDIR /app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 
+# *** FIX APPLIED HERE ***
+# Add execute permissions to the Maven Wrapper script.
+# This is crucial for running it in a Linux-based container.
+RUN chmod +x ./mvnw
+
 # Download all dependencies
 RUN ./mvnw dependency:go-offline
 
@@ -18,9 +23,6 @@ COPY src ./src
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Create the final, smaller runtime image
-# *** FIX APPLIED HERE ***
-# Changed the base image from openjdk:21-jre-slim to eclipse-temurin:21-jre.
-# This is a reliable alternative that should resolve the 502 Bad Gateway error.
 FROM eclipse-temurin:21-jre
 
 WORKDIR /app
@@ -33,3 +35,4 @@ EXPOSE 10000
 
 # The command to run the application.
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
