@@ -7,4 +7,5 @@ import com.example.buspassmanagement.model.Bus;
 
 @Repository
 public interface BusRepository extends JpaRepository<Bus, Long> {
+    // JpaRepository provides all necessary CRUD methods like findAll(), findById(), save(), deleteById()
 }

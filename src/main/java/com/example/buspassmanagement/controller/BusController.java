@@ -1,6 +1,9 @@
 package com.example.buspassmanagement.controller;
 
+import java.util.Collections;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -23,73 +26,83 @@ public class BusController {
     @Autowired
     private BusService busService;
 
-    // **1. LIST ALL BUSES** (Read All)
-    @GetMapping // Maps to /buses
+    /**
+     * Displays the list of all buses. Includes error handling.
+     * Accessible to all authenticated users.
+     */
+    @GetMapping
     public String listBuses(Model model) {
-        // 1. Fetch all buses for the table list
-        model.addAttribute("buses", busService.getAllBuses());
-        
-        // 2. Ensure an empty Bus object is available for the ADD form (Crucial for initial GET request)
-        if (!model.containsAttribute("bus")) {
-            model.addAttribute("bus", new Bus());
+        try {
+            model.addAttribute("buses", busService.getAllBuses());
+            if (!model.containsAttribute("bus")) {
+                model.addAttribute("bus", new Bus());
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR loading bus list: " + e.getMessage());
+            model.addAttribute("errorMessage", "Could not load bus information. Please contact support.");
+            model.addAttribute("buses", Collections.emptyList());
         }
-        
-        return "buses"; // Points to templates/buses.html
+        return "buses";
     }
 
-    // **2. PROCESS ADD/CREATE** @PostMapping("/add")
+    /**
+     * Processes adding a new bus. Admin only.
+     */
     @PostMapping("/add")
-    public String addBus(@Valid @ModelAttribute("bus") Bus bus, 
-                         BindingResult result, 
-                         RedirectAttributes redirectAttributes,
-                         Model model) {
-
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public String addBus(@Valid @ModelAttribute("bus") Bus bus,
+                         BindingResult result,
+                         RedirectAttributes redirectAttributes) {
         if (result.hasErrors()) {
-            // Flash the errors and the bus object back to the list page via redirect
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.bus", result);
             redirectAttributes.addFlashAttribute("bus", bus);
-            return "redirect:/buses"; 
+            return "redirect:/buses";
         }
-
         busService.saveBus(bus);
         redirectAttributes.addFlashAttribute("successMessage", "Bus added successfully!");
         return "redirect:/buses";
     }
 
-    // **3. SHOW EDIT FORM** (Read One)
+    /**
+     * Shows the form to edit a bus. Admin only.
+     */
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable Long id, Model model) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Bus bus = busService.getBusById(id);
         if (bus == null) {
-             // If bus not found, redirect back to list
-             return "redirect:/buses"; 
+            redirectAttributes.addFlashAttribute("errorMessage", "Bus not found with ID: " + id);
+            return "redirect:/buses";
         }
         model.addAttribute("bus", bus);
-        return "bus-edit"; // Points to templates/bus-edit.html
+        return "bus-edit";
     }
     
-    // **4. PROCESS UPDATE/SAVE**
+    /**
+     * Processes the update of a bus. Admin only.
+     */
     @PostMapping("/update")
-    public String updateBus(@Valid @ModelAttribute("bus") Bus bus, 
-                            BindingResult result, 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public String updateBus(@Valid @ModelAttribute("bus") Bus bus,
+                            BindingResult result,
                             RedirectAttributes redirectAttributes) {
-
         if (result.hasErrors()) {
-             // If validation fails, return the user back to the edit form directly (NOT REDIRECT)
-             return "bus-edit"; 
+            return "bus-edit";
         }
-
         busService.saveBus(bus);
         redirectAttributes.addFlashAttribute("successMessage", "Bus updated successfully!");
         return "redirect:/buses";
     }
 
-
-    // **5. DELETE BUS**
+    /**
+     * Deletes a bus. Admin only.
+     */
     @GetMapping("/delete/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String deleteBus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         busService.deleteBus(id);
         redirectAttributes.addFlashAttribute("successMessage", "Bus deleted successfully.");
         return "redirect:/buses";
     }
 }
+

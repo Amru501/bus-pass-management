@@ -11,7 +11,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,21 +28,22 @@ public class Notice {
     private Long id;
 
     @NotBlank(message = "Notice message cannot be empty.")
-    @Column(nullable = false, columnDefinition = "TEXT") // Use TEXT for potentially longer messages
+    @Column(nullable = false, columnDefinition = "TEXT") 
     private String message;
 
     @Column(nullable = false)
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    // 🔑 Relationship 1: The bus this notice pertains to (e.g., "Bus A is late")
+    // *** FIX APPLIED HERE ***
+    // Removed @NotNull validation. The controller logic is responsible for assigning this object
+    // before saving, and the database constraint `nullable = false` provides the final integrity check.
     @ManyToOne
     @JoinColumn(name = "bus_id", nullable = false)
-    @NotNull(message = "Notice must be assigned to a bus.")
     private Bus bus;
     
-    // 🔑 Relationship 2: The User (Admin/Driver) who posted the notice (for auditing)
+    // *** FIX APPLIED HERE ***
+    // Removed @NotNull validation for the same reason as above.
     @ManyToOne
     @JoinColumn(name = "posted_by_user_id", nullable = false)
-    @NotNull(message = "Notice must be attributed to a user.")
     private User postedBy;
 }

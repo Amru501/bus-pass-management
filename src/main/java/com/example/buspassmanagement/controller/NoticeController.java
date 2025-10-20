@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.example.buspassmanagement.model.Bus;
@@ -37,99 +38,95 @@ public class NoticeController {
     @Autowired
     private BusService busService;
 
-    // 1. VIEW NOTICES (Restricted to ROLE_USER by SecurityConfig)
     @GetMapping
     public String listNotices(Model model) {
         model.addAttribute("notices", noticeService.getAllNotices());
-        return "notices"; // Points to templates/notices.html
+        return "notices";
     }
 
-    // 2. SHOW ADD NOTICE FORM (Restricted to Admin/Driver)
+    /**
+     * SHOW ADD NOTICE FORM
+     * * *** FIX APPLIED HERE ***
+     * Initializes the Notice object with a non-null, empty Bus object.
+     * This prevents a NullPointerException in the template, regardless of whether
+     * it uses `th:field="*{bus.id}"` or `name="busId"`. This makes the controller
+     * more robust against template errors.
+     */
     @GetMapping("/add")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DRIVER')")
     public String addNoticeForm(Model model) {
-        model.addAttribute("notice", new Notice());
-        // Provide the list of buses for the dropdown
-        model.addAttribute("buses", busService.getAllBuses()); 
-        return "notices-add"; // Points to templates/notices-add.html
+        if (!model.containsAttribute("notice")) {
+            Notice notice = new Notice();
+            notice.setBus(new Bus()); // Defensively prevent NullPointerException in template
+            model.addAttribute("notice", notice);
+        }
+        // Add buses for the dropdown
+        try {
+            model.addAttribute("buses", busService.getAllBuses());
+        } catch (Exception e) {
+            // If this fails, it might be a DB connection issue.
+            model.addAttribute("errorMessage", "Could not load bus list. Please check system configuration.");
+        }
+        return "notices-add";
     }
 
-    // 3. PROCESS ADD NOTICE (Restricted to Admin/Driver)
     @PostMapping("/add")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DRIVER')")
     public String saveNotice(@Valid @ModelAttribute("notice") Notice notice,
-                             BindingResult result,
+                             BindingResult bindingResult,
+                             @RequestParam("busId") String busIdValue,
                              Principal principal,
-                             RedirectAttributes redirectAttributes,
-                             Model model) { 
-        
-        // 1. Check if the message content is valid. We skip the bus check here.
-        if (result.hasFieldErrors("message")) {
-            // Re-fetch buses and return to the form to show errors
-            model.addAttribute("buses", busService.getAllBuses());
-            return "notices-add"; 
-        }
-        
-        // 2. Get the poster
-        User poster = userService.findByEmail(principal.getName()).orElse(null);
-        if (poster == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error: User not found in system.");
-            return "redirect:/notices";
-        }
-        
-        // --- START FIX for Null Pointer Access ---
-        // Get the ID value submitted by the form. 
-        // This ID will be null if "-- Select a Bus/Route --" was chosen.
-        // It will be the string "ALL" if "ALL BUSES" was chosen.
-        String busIdValue = (notice.getBus() != null && notice.getBus().getId() != null) 
-                            ? String.valueOf(notice.getBus().getId()) 
-                            : null;
-        
+                             RedirectAttributes redirectAttributes) {
+
+        User poster = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new IllegalArgumentException("User not found for principal: " + principal.getName()));
+
         if (busIdValue == null || busIdValue.isEmpty()) {
-             // Case: User submitted with "--- Select a Bus/Route ---" selected (ID is null/empty)
-             // We only hit this if validation for message passed but bus selection failed.
-             redirectAttributes.addFlashAttribute("errorMessage", "Please select a specific bus or 'ALL BUSES'.");
-             redirectAttributes.addFlashAttribute("notice", notice);
-             return "redirect:/notices/add";
+            bindingResult.rejectValue("bus", "bus.required", "Please select a target bus or 'ALL BUSES'.");
         }
 
-        if ("ALL".equals(busIdValue)) {
-            // Option 3A: Send to ALL buses
-            List<Bus> allBuses = busService.getAllBuses();
-            for (Bus bus : allBuses) {
-                Notice newNotice = new Notice();
-                newNotice.setMessage(notice.getMessage());
-                newNotice.setPostedBy(poster);
-                newNotice.setBus(bus); // Set the specific bus object
-                noticeService.addNotice(newNotice); // Save individual notice
-            }
-            redirectAttributes.addFlashAttribute("successMessage", "Notice successfully posted to all " + allBuses.size() + " routes.");
+        if (bindingResult.hasErrors()) {
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.notice", bindingResult);
+            redirectAttributes.addFlashAttribute("notice", notice);
+            return "redirect:/notices/add";
+        }
 
-        } else {
-            // Option 3B: Send to a single specific bus (busIdValue is now a valid ID string)
-            try {
-                Long busId = Long.valueOf(busIdValue);
-                Bus targetBus = busService.getBusById(busId);
-                
-                if (targetBus != null) {
-                    // Ensure the entire bus object is set correctly before saving
-                    notice.setBus(targetBus); 
-                    notice.setPostedBy(poster);
-                    noticeService.addNotice(notice);
-                    redirectAttributes.addFlashAttribute("successMessage", "Notice successfully posted to " + targetBus.getBusNumber() + ".");
-                } else {
-                    redirectAttributes.addFlashAttribute("errorMessage", "Error: Target bus not found.");
+        try {
+            if ("ALL".equalsIgnoreCase(busIdValue)) {
+                List<Bus> allBuses = busService.getAllBuses();
+                for (Bus bus : allBuses) {
+                    Notice newNotice = new Notice();
+                    newNotice.setMessage(notice.getMessage());
+                    newNotice.setPostedBy(poster);
+                    newNotice.setBus(bus);
+                    noticeService.addNotice(newNotice);
                 }
-            } catch (NumberFormatException e) {
-                 redirectAttributes.addFlashAttribute("errorMessage", "Invalid bus ID submitted.");
+                redirectAttributes.addFlashAttribute("successMessage", "Notice successfully posted to all " + allBuses.size() + " routes.");
+            } else {
+                Long busId = Long.parseLong(busIdValue);
+                Bus targetBus = busService.getBusById(busId);
+
+                if (targetBus == null) {
+                    redirectAttributes.addFlashAttribute("errorMessage", "Error: Target bus not found.");
+                    return "redirect:/notices/add";
+                }
+
+                notice.setBus(targetBus);
+                notice.setPostedBy(poster);
+                noticeService.addNotice(notice);
+                redirectAttributes.addFlashAttribute("successMessage", "Notice successfully posted to bus: " + targetBus.getBusNumber() + ".");
             }
+        } catch (NumberFormatException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Invalid bus ID provided.");
+            return "redirect:/notices/add";
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "An unexpected error occurred while saving the notice.");
+            return "redirect:/notices/add";
         }
-        // --- END FIX for Null Pointer Access ---
-        
+
         return "redirect:/notices";
     }
 
-    // 4. DELETE NOTICE (Restricted to Admin/Driver)
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DRIVER')")
     public String deleteNotice(@PathVariable Long id, RedirectAttributes redirectAttributes) {

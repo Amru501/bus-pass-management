@@ -2,15 +2,17 @@ package com.example.buspassmanagement.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod; // Added for explicit GET/POST control
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
@@ -28,28 +30,28 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                // 🔓 PUBLIC ROUTES: Allow login, register, and static resources
-                .requestMatchers("/register", "/login", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll() 
+                // --- RULE ORDER: MOST SPECIFIC TO MOST GENERAL ---
+
+                // 1. PUBLIC ASSETS & PAGES (Accessible to everyone)
+                .requestMatchers("/register", "/login", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+
+                // 2. ADMIN-ONLY MANAGEMENT ACTIONS (Most specific business rules)
+                .requestMatchers("/buses/add", "/buses/update", "/buses/edit/**", "/buses/delete/**").hasAuthority("ROLE_ADMIN")
+                .requestMatchers("/payments/add", "/payments/create", "/payments/delete/**").hasAuthority("ROLE_ADMIN")
                 
-                // 🔐 LAYER 1: ADMIN CRUD ACCESS (POST/DELETE/EDIT on Buses, Payments)
-                .requestMatchers("/buses", "/buses/**", "/payments/add", "/payments/update", "/payments/delete/**").hasAuthority("ROLE_ADMIN")
-                
-                // 🔐 LAYER 2: DRIVER/ADMIN POSTING ACCESS (Notices)
+                // 3. DRIVER & ADMIN ACTIONS
                 .requestMatchers("/notices/add", "/notices/delete/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DRIVER")
-                
-                // 🔐 LAYER 3: AUTHENTICATED ACCESS FOR VIEWING (List pages)
-                // Payments list is visible to all authenticated users (logic handles viewing only their own)
-                .requestMatchers(HttpMethod.GET, "/payments").authenticated() 
-                
-                // 🔑 FIX: Allow ROLE_USER (Students) AND ROLE_ADMIN to view the notices feed.
-                .requestMatchers(HttpMethod.GET, "/notices").hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                
-                // 🔒 DEFAULT: Everything else requires authentication
+
+                // 4. GENERAL AUTHENTICATED VIEWING (Less specific rules)
+                .requestMatchers(HttpMethod.GET, "/buses").authenticated() // Viewing the main bus list
+                .requestMatchers("/payments", "/notices").authenticated() // Viewing payments and notices
+
+                // 5. CATCH-ALL (Most general rule: any other request must be authenticated)
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
-                .loginPage("/login") 
-                .defaultSuccessUrl("/", true) 
+                .loginPage("/login")
+                .defaultSuccessUrl("/", true)
                 .permitAll()
             )
             .logout(logout -> logout
@@ -58,11 +60,12 @@ public class SecurityConfig {
                 .permitAll()
             )
             .rememberMe(r -> r
-                .key("uniqueAndSecretKey")
+                .key("a-very-secret-and-unique-key-for-remember-me")
                 .tokenValiditySeconds(7 * 24 * 60 * 60)
             )
-            .csrf(csrf -> csrf.disable()); 
+            .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
 }
+

@@ -24,7 +24,8 @@ public class BusService {
     public void deleteBus(Long id) {
         busRepository.deleteById(id);
     }
+    
     public Bus getBusById(Long id) {
         return busRepository.findById(id).orElse(null); 
-}
+    }
 }

@@ -17,13 +17,10 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private PasswordEncoder passwordEncoder; // Assuming this is used
+    private PasswordEncoder passwordEncoder; 
 
-    // Existing methods:
     public User saveUser(User user) {
-        // Hash the password before saving (crucial security step)
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        // Ensure role is set, if not already handled by default value
         if (user.getRole() == null) {
             user.setRole(User.Role.USER);
         }
@@ -34,10 +31,12 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
     
-    // 🔑 ADD THIS METHOD TO RESOLVE THE ERROR:
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
     
-    // ... other methods like findById, delete, etc.
+    // ADDED: This method is required by the PaymentController
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
 }

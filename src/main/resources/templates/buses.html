@@ -30,7 +30,6 @@
             
             <form th:action="@{/buses/add}" th:object="${bus}" method="post">
                 
-                <!-- 🔑 FINAL FIX: Check if the binding result for 'bus' exists AND has errors -->
                 <div th:if="${#fields.hasErrors('all')}" class="alert alert-warning">
                     Please correct the errors below.
                 </div>
@@ -78,7 +77,6 @@
                     <th>Route</th>
                     <th>Seats</th>
                     <th>Schedule</th>
-                    <!-- ACTIONS COLUMN: Only visible to Admin -->
                     <th sec:authorize="hasAuthority('ROLE_ADMIN')">Actions</th>
                 </tr>
             </thead>
@@ -90,11 +88,17 @@
                     <td th:text="${b.seats}">50</td>
                     <td th:text="${b.schedule}">Daily 8:00 AM</td>
                     
-                    <!-- ADMIN ACTIONS: Only visible to Admin -->
                     <td sec:authorize="hasAuthority('ROLE_ADMIN')">
                         <a th:href="@{/buses/edit/{id}(id=${b.id})}" class="btn btn-sm btn-info me-2">Edit</a>
-                        <a th:href="@{/buses/delete/{id}(id=${b.id})}" class="btn btn-sm btn-danger"
-                           th:onclick="|return confirm('Are you sure you want to delete bus ${b.busNumber}?');|">Delete</a>
+                        <!-- 
+                          ** THE FIX **
+                          1. Use a standard `onclick` that calls a Javascript function.
+                          2. Store the dynamic bus number in a safe `data-bus-number` attribute.
+                        -->
+                        <a th:href="@{/buses/delete/{id}(id=${b.id})}" 
+                           class="btn btn-sm btn-danger"
+                           th:data-bus-number="${b.busNumber}"
+                           onclick="return showDeleteConfirm(this);">Delete</a>
                     </td>
                 </tr>
             </tbody>
@@ -103,5 +107,16 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+<!-- ** JAVASCRIPT FIX ** -->
+<script>
+    function showDeleteConfirm(element) {
+        // Read the bus number from the safe data-* attribute
+        const busNumber = element.getAttribute('data-bus-number');
+        // Construct the message and show the native confirm dialog
+        return confirm(`Are you sure you want to delete bus ${busNumber}?`);
+    }
+</script>
+
 </body>
 </html>

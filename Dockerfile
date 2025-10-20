@@ -1,55 +1,34 @@
-# =========================
-# 1. Base image: Java 21
-# =========================
-FROM openjdk:21-jdk-slim
+# Stage 1: Build the application using a multi-stage build for efficiency
+FROM maven:3.9-eclipse-temurin-21 AS build
 
-# =========================
-# 2. Set working directory
-# =========================
+# Set the working directory inside the container
 WORKDIR /app
 
-# =========================
-# 3. Copy Maven wrapper and pom.xml
-# =========================
+# Copy the Maven wrapper and pom.xml first to leverage Docker's layer caching
+COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
-COPY .mvn .mvn
 
-# =========================
-# 4. Copy source code
-# =========================
+# Download all dependencies
+RUN ./mvnw dependency:go-offline
+
+# Copy the rest of your application's source code
 COPY src ./src
 
-# =========================
-# 5. Make Maven wrapper executable
-# =========================
-RUN chmod +x ./mvnw
-
-# =========================
-# 6. Build the Spring Boot app
-# =========================
+# Package the application, skipping the tests
 RUN ./mvnw clean package -DskipTests
 
-# =========================
-# 7. Copy the built jar
-# =========================
-RUN cp target/*.jar app.jar
+# Stage 2: Create the final, smaller runtime image
+FROM openjdk:21-jre-slim
 
-# =========================
-# 8. Expose port (Render will map $PORT)
-# =========================
+WORKDIR /app
+
+# Copy the built JAR file from the 'build' stage
+COPY --from=build /app/target/*.jar app.jar
+
+# Render injects the PORT environment variable. This EXPOSE is good practice.
 EXPOSE 10000
 
-# =========================
-# 9. Environment variables (defaults for local testing)
-# =========================
-ENV DB_HOST=localhost
-ENV DB_PORT=3306
-ENV DB_NAME=buspassdb
-ENV DB_USERNAME=root
-ENV DB_PASSWORD=9074841649
-ENV PORT=10000
-
-# =========================
-# 10. Run the application
-# =========================
-ENTRYPOINT ["sh", "-c", "java -jar /app/app.jar --spring.datasource.url=jdbc:mysql://${DB_HOST}:${DB_PORT}/${DB_NAME} --spring.datasource.username=${DB_USERNAME} --spring.datasource.password=${DB_PASSWORD} --server.port=${PORT}"]
+# The command to run the application.
+# Spring Boot will automatically pick up the database credentials and port
+# from the environment variables you set in the Render dashboard.
+ENTRYPOINT ["java", "-jar", "app.jar"]

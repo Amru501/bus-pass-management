@@ -17,7 +17,6 @@
     
     <h2 class="mb-4 text-warning">Post New Notice (Admin / Driver Only)</h2>
 
-    <!-- Link to Home Page -->
     <a th:href="@{/}" class="btn btn-outline-secondary mb-4">Go to Dashboard</a>
 
     <!-- POST NOTICE FORM -->
@@ -26,22 +25,29 @@
             
             <form th:action="@{/notices/add}" th:object="${notice}" method="post">
                 
-                <!-- Validation Errors -->
-                <div th:if="${#fields.hasAnyErrors()}" class="alert alert-danger">
-                    Please correct the following errors before posting.
+                <!-- General Validation Errors -->
+                <div th:if="${#fields.hasGlobalErrors()}" class="alert alert-danger">
+                    <p th:each="err : ${#fields.globalErrors()}" th:text="${err}"></p>
                 </div>
 
                 <div class="mb-4">
-                    <label for="busSelect" class="form-label fw-bold">1. Select Target Bus</label>
-                    <select id="busSelect" th:field="*{bus.id}" class="form-select" th:errorclass="is-invalid">
+                    <label for="busId" class="form-label fw-bold">1. Select Target Bus</label>
+                    <!-- 
+                        *** FIX APPLIED HERE ***
+                        - The 'name' remains "busId" to match the controller's @RequestParam.
+                        - The 'th:classappend' now correctly checks for errors on the 'bus' field of the Notice object.
+                        - A specific div is added below to display errors for the 'bus' field.
+                        This aligns the template with the model structure, fixing the NotReadablePropertyException.
+                    -->
+                    <select id="busId" name="busId" class="form-select" 
+                            th:classappend="${#fields.hasErrors('bus')} ? 'is-invalid' : ''" required>
                         <option value="">-- Select a Bus/Route --</option>
                         <option value="ALL">ALL BUSES / ALL ROUTES</option> 
-                        <!-- Iterate over the list of buses provided by the controller -->
                         <option th:each="bus : ${buses}" 
                                 th:value="${bus.id}" 
                                 th:text="${bus.busNumber + ' - ' + bus.route}">Bus Number - Route Details</option>
                     </select>
-                    <div class="invalid-feedback" th:errors="*{bus}">Bus selection is required.</div>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('bus')}" th:errors="*{bus}">Bus Selection Error</div>
                 </div>
 
                 <div class="mb-4">
@@ -63,3 +69,4 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 </body>
 </html>
+
