@@ -56,8 +56,21 @@
                 </div>
             </div>
         </div>
+
+        <!-- NEW CARD: LIVE BUS TRACKING (Visible to USER and ADMIN) -->
+        <div sec:authorize="hasAnyAuthority('ROLE_USER', 'ROLE_ADMIN')" class="col-md-6 col-lg-4">
+            <div class="card h-100 border-info shadow-sm">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title text-info">Live Bus Tracking</h5>
+                    <p class="card-text">Get real-time location updates for buses currently in service.</p>
+                    <div class="mt-auto">
+                        <a th:href="@{/track}" class="btn btn-info text-white w-100">Track Your Bus</a>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        <!-- CARD 2: DRIVER/ADMIN ACTIONS (Visible to DRIVER & ADMIN) -->
+        <!-- DRIVER/ADMIN ACTIONS (Visible to DRIVER & ADMIN) -->
         <div sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_DRIVER')" class="col-md-6 col-lg-4">
             <div class="card h-100 border-warning shadow-sm">
                 <div class="card-body d-flex flex-column">
@@ -70,7 +83,7 @@
             </div>
         </div>
 
-        <!-- CARD 3: ADMIN MANAGEMENT TOOLS (Visible only to ADMIN) -->
+        <!-- ADMIN MANAGEMENT TOOLS (Visible only to ADMIN) -->
         <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="col-md-6 col-lg-4">
             <div class="card h-100 border-danger shadow-sm">
                 <div class="card-body d-flex flex-column">
@@ -99,4 +112,3 @@
 </script>
 </body>
 </html>
-

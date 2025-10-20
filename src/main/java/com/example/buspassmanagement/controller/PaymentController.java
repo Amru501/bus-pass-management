@@ -1,23 +1,28 @@
 package com.example.buspassmanagement.controller;
 
-import com.example.buspassmanagement.model.Payment;
-import com.example.buspassmanagement.model.Payment.PaymentStatus;
-import com.example.buspassmanagement.model.User;
-import com.example.buspassmanagement.service.PaymentService;
-import com.example.buspassmanagement.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import java.security.Principal;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import com.example.buspassmanagement.model.Payment;
+import com.example.buspassmanagement.model.Payment.PaymentStatus;
+import com.example.buspassmanagement.model.User;
+import com.example.buspassmanagement.service.PaymentService;
+import com.example.buspassmanagement.service.UserService;
 
 @Controller
 @RequestMapping("/payments")
@@ -41,6 +46,10 @@ public class PaymentController {
             return "redirect:/login";
         }
 
+        // Initialize summary variables for the user view.
+        model.addAttribute("totalPaid", 0.0);
+        model.addAttribute("totalPending", 0.0);
+
         try {
             User currentUser = userService.findByEmail(principal.getName())
                     .orElseThrow(() -> new RuntimeException("Authenticated user not found: " + principal.getName()));
@@ -48,21 +57,28 @@ public class PaymentController {
             List<Payment> payments;
             if (currentUser.getRole() == User.Role.ADMIN) {
                 payments = paymentService.getAllPayments();
+                model.addAttribute("payments", payments);
             } else {
+                // This logic is now fully self-contained for ROLE_USER
                 payments = paymentService.getPaymentsByUserId(currentUser.getId());
-                // Add payment summary for student view
+                
+                // *** FIX APPLIED HERE ***
+                // Using explicit lambdas instead of method references for maximum compatibility and clarity.
+                // This avoids potential runtime issues and makes the calculation more direct.
                 double totalPaid = payments.stream()
                         .filter(p -> p.getStatus() == PaymentStatus.PAID)
-                        .mapToDouble(Payment::getAmount)
+                        .mapToDouble(p -> p.getAmount())
                         .sum();
+                
                 double totalPending = payments.stream()
                         .filter(p -> p.getStatus() == PaymentStatus.PENDING)
-                        .mapToDouble(Payment::getAmount)
+                        .mapToDouble(p -> p.getAmount())
                         .sum();
+                
                 model.addAttribute("totalPaid", totalPaid);
                 model.addAttribute("totalPending", totalPending);
+                model.addAttribute("payments", payments);
             }
-            model.addAttribute("payments", payments);
 
         } catch (Exception e) {
             System.err.println("CRITICAL ERROR loading payment page: " + e.getMessage());

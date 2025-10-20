@@ -33,20 +33,30 @@ public class SecurityConfig {
                 // --- RULE ORDER: MOST SPECIFIC TO MOST GENERAL ---
 
                 // 1. PUBLIC ASSETS & PAGES (Accessible to everyone)
-                .requestMatchers("/register", "/login", "/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                .requestMatchers(
+                    "/register", 
+                    "/login", 
+                    "/error", // Allow access to the custom error page
+                    "/css/**", 
+                    "/js/**", 
+                    "/images/**", 
+                    "/webjars/**",
+                    "/animations/**" // *** NEW: Allow access to animations folder ***
+                ).permitAll()
 
-                // 2. ADMIN-ONLY MANAGEMENT ACTIONS (Most specific business rules)
+                // 2. ADMIN-ONLY MANAGEMENT ACTIONS
                 .requestMatchers("/buses/add", "/buses/update", "/buses/edit/**", "/buses/delete/**").hasAuthority("ROLE_ADMIN")
                 .requestMatchers("/payments/add", "/payments/create", "/payments/delete/**").hasAuthority("ROLE_ADMIN")
                 
                 // 3. DRIVER & ADMIN ACTIONS
                 .requestMatchers("/notices/add", "/notices/delete/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DRIVER")
 
-                // 4. GENERAL AUTHENTICATED VIEWING (Less specific rules)
-                .requestMatchers(HttpMethod.GET, "/buses").authenticated() // Viewing the main bus list
-                .requestMatchers("/payments", "/notices").authenticated() // Viewing payments and notices
+                // 4. GENERAL AUTHENTICATED VIEWING
+                .requestMatchers("/track").authenticated() // Secure the new track page
+                .requestMatchers(HttpMethod.GET, "/buses").authenticated() 
+                .requestMatchers("/payments", "/notices").authenticated()
 
-                // 5. CATCH-ALL (Most general rule: any other request must be authenticated)
+                // 5. CATCH-ALL
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form
