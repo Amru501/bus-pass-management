@@ -1,7 +1,7 @@
 # =========================
-# 1. Base image
+# 1. Base image: Java 21
 # =========================
-FROM openjdk:17-jdk-slim
+FROM openjdk:21-jdk-slim
 
 # =========================
 # 2. Set working directory
@@ -40,14 +40,14 @@ RUN cp target/*.jar app.jar
 EXPOSE 10000
 
 # =========================
-# 9. Set environment variables defaults (optional)
+# 9. Environment variables (defaults for local testing)
 # =========================
 ENV DB_HOST=localhost
 ENV DB_PORT=3306
 ENV DB_NAME=buspassdb
 ENV DB_USERNAME=root
 ENV DB_PASSWORD=9074841649
-ENV PORT=8080
+ENV PORT=10000
 
 # =========================
 # 10. Run the application
