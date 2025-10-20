@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.buspassmanagement.model.Bus;
 import com.example.buspassmanagement.model.Driver;
 import com.example.buspassmanagement.service.BusService;
 import com.example.buspassmanagement.service.DriverService;
@@ -48,6 +49,9 @@ public class DriverController {
     public String addDriver(@Valid @ModelAttribute("newDriverProfile") Driver driver,
                             BindingResult result,
                             @RequestParam("imageFile") MultipartFile imageFile,
+                            // *** THE FIX: Part 1 ***
+                            // Explicitly capture the assignedBusId from the form.
+                            @RequestParam(value = "assignedBusId", required = false) Long assignedBusId,
                             RedirectAttributes redirectAttributes) {
 
         if (driverService.findByEmail(driver.getEmail()).isPresent()) {
@@ -67,9 +71,15 @@ public class DriverController {
         }
 
         try {
-            // This is the standard, direct way to set the image data.
             String base64Image = Base64.getEncoder().encodeToString(imageFile.getBytes());
             driver.setImage(base64Image);
+
+            // *** THE FIX: Part 2 ***
+            // If a bus ID was submitted, find the Bus object and assign it to the driver.
+            if (assignedBusId != null) {
+                Bus assignedBus = busService.getBusById(assignedBusId);
+                driver.setAssignedBus(assignedBus);
+            }
             
             driverService.saveDriver(driver);
 
@@ -83,4 +93,3 @@ public class DriverController {
         return "redirect:/drivers";
     }
 }
-
