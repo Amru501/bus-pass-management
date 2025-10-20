@@ -18,7 +18,10 @@ COPY src ./src
 RUN ./mvnw clean package -DskipTests
 
 # Stage 2: Create the final, smaller runtime image
-FROM openjdk:21-jre-slim
+# *** FIX APPLIED HERE ***
+# Changed the base image from openjdk:21-jre-slim to eclipse-temurin:21-jre.
+# This is a reliable alternative that should resolve the 502 Bad Gateway error.
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
 
@@ -29,6 +32,4 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 10000
 
 # The command to run the application.
-# Spring Boot will automatically pick up the database credentials and port
-# from the environment variables you set in the Render dashboard.
 ENTRYPOINT ["java", "-jar", "app.jar"]
