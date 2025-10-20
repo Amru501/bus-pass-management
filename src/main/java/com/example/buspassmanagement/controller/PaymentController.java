@@ -51,18 +51,31 @@ public class PaymentController {
         model.addAttribute("totalPending", 0.0);
 
         try {
+            System.out.println("DEBUG: Starting payment page load for user: " + principal.getName());
+            
             User currentUser = userService.findByEmail(principal.getName())
                     .orElseThrow(() -> new RuntimeException("Authenticated user not found: " + principal.getName()));
+            
+            System.out.println("DEBUG: Found user: " + currentUser.getName() + " with role: " + currentUser.getRole());
 
             List<Payment> payments;
             if (currentUser.getRole() == User.Role.ADMIN) {
+                System.out.println("DEBUG: Loading payments for ADMIN user");
                 payments = paymentService.getAllPayments();
                 model.addAttribute("payments", payments);
             } else {
+                System.out.println("DEBUG: Loading payments for USER with ID: " + currentUser.getId());
                 // This logic is now fully self-contained for ROLE_USER
                 payments = paymentService.getPaymentsByUserId(currentUser.getId());
+                System.out.println("DEBUG: Retrieved payments list: " + (payments != null ? payments.size() + " items" : "null"));
                 
-                // *** FIX APPLIED HERE ***
+                // *** FIX FOR NEW USERS ***
+                // Handle null or empty payments list for new users who haven't been assigned any installments yet
+                if (payments == null) {
+                    System.out.println("DEBUG: Payments was null, converting to empty list");
+                    payments = Collections.emptyList();
+                }
+                
                 // Using explicit lambdas instead of method references for maximum compatibility and clarity.
                 // This avoids potential runtime issues and makes the calculation more direct.
                 double totalPaid = payments.stream()
@@ -75,15 +88,22 @@ public class PaymentController {
                         .mapToDouble(p -> p.getAmount())
                         .sum();
                 
+                System.out.println("DEBUG: Calculated totals - Paid: " + totalPaid + ", Pending: " + totalPending);
+                
                 model.addAttribute("totalPaid", totalPaid);
                 model.addAttribute("totalPending", totalPending);
                 model.addAttribute("payments", payments);
             }
+            
+            System.out.println("DEBUG: Successfully loaded payment page data");
 
         } catch (Exception e) {
             System.err.println("CRITICAL ERROR loading payment page: " + e.getMessage());
             e.printStackTrace();
-            model.addAttribute("errorMessage", "Could not load payment details due to a server error. Please check logs.");
+            System.err.println("Exception type: " + e.getClass().getName());
+            System.err.println("Stack trace:");
+            e.printStackTrace();
+            model.addAttribute("errorMessage", "Could not load payment details due to a server error: " + e.getMessage());
             model.addAttribute("payments", Collections.emptyList());
         }
 

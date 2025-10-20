@@ -75,8 +75,8 @@
             </div>
             
             <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number (Optional)</label>
-                <input type="tel" th:field="*{phone}" class="form-control" id="phone">
+                <label for="phone" class="form-label">Phone Number</label>
+                <input type="tel" th:field="*{phone}" class="form-control" id="phone" required pattern="[0-9]{10}" title="Enter a 10-digit phone number">
                 <div class="invalid-feedback" th:errors="*{phone}"></div>
             </div>
 
@@ -170,7 +170,7 @@
             ctx.shadowBlur = 0;
         }
     }
-
+    
     function init() {
         for (let i = 0; i < dotCount; i++) {
             dots.push(new Dot());
@@ -182,9 +182,7 @@
 
     function animate() {
         ctx.clearRect(0, 0, width, height);
-
         dots.forEach(dot => dot.draw());
-        
         ctx.strokeStyle = 'rgba(13, 110, 253, 0.2)';
         ctx.lineWidth = 1;
         routes.forEach(route => {
@@ -196,12 +194,10 @@
             ctx.closePath();
             ctx.stroke();
         });
-
         buses.forEach(bus => {
             bus.update();
             bus.draw();
         });
-
         requestAnimationFrame(animate);
     }
 

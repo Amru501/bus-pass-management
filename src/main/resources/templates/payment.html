@@ -42,7 +42,7 @@
     </div>
 
     <!-- MAIN PAYMENT TABLE -->
-    <div th:if="${#lists.isEmpty(payments) and !errorMessage}" class="alert alert-info">
+    <div th:if="${#lists.isEmpty(payments) and (errorMessage == null)}" class="alert alert-info">
         No payment records found.
     </div>
     
@@ -59,14 +59,14 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="p : ${payments}" th:classappend="${p.status.name() == 'PAID' ? 'table-success' : ''}">
+                <tr th:each="p : ${payments}" th:classappend="${p.status != null && p.status.name() == 'PAID' ? 'table-success' : ''}">
                     <td th:text="${p.id}">1</td>
-                    <td sec:authorize="hasAuthority('ROLE_ADMIN')" th:text="${p.user?.name ?: 'N/A'}">Student Name</td>
-                    <td th:text="${'₹' + #numbers.formatDecimal(p.amount, 1, 'COMMA', 2, 'POINT')}">₹1500.00</td>
-                    <td th:text="${#temporals.format(p.dueDate, 'dd-MMM-yyyy')}">20-Dec-2025</td>
+                    <td sec:authorize="hasAuthority('ROLE_ADMIN')" th:text="${p.user != null ? p.user.name : 'N/A'}">Student Name</td>
+                    <td th:text="${'₹' + #numbers.formatDecimal(p.amount != null ? p.amount : 0, 1, 'COMMA', 2, 'POINT')}">₹1500.00</td>
+                    <td th:text="${p.dueDate != null ? #temporals.format(p.dueDate, 'dd-MMM-yyyy') : 'N/A'}">20-Dec-2025</td>
                     <td>
-                        <span th:text="${p.status.name()}"
-                              th:classappend="${p.status.name() == 'PAID' ? 'badge bg-success' : 'badge bg-warning text-dark'}">STATUS</span>
+                        <span th:text="${p.status != null ? p.status.name() : 'UNKNOWN'}"
+                              th:classappend="${p.status != null && p.status.name() == 'PAID' ? 'badge bg-success' : 'badge bg-warning text-dark'}">STATUS</span>
                     </td>
                     <td>
                         <a th:if="${p.status.name() == 'PENDING'}" sec:authorize="hasAuthority('ROLE_USER')" 

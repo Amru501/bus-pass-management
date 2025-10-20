@@ -10,11 +10,25 @@
           rel="stylesheet" 
           crossorigin="anonymous">
     <style>
+        :root {
+            --surface: rgba(255, 255, 255, 0.95);
+            --surface-border: rgba(255, 255, 255, 0.2);
+            --text: #212529;
+            --accent: #0d6efd;
+            --bg: #1a1a2e;
+        }
+        [data-theme="dark"] {
+            --surface: rgba(16, 18, 27, 0.8);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --text: #e9ecef;
+            --accent: #66b2ff;
+            --bg: #0f1020;
+        }
         body {
             font-family: 'Inter', sans-serif;
             margin: 0;
             position: relative;
-            background-color: #1a1a2e;
+            background-color: var(--bg);
             min-height: 100vh;
         }
         
@@ -35,15 +49,43 @@
         .main-content {
             padding: 30px;
             border-radius: 1rem;
-            background-color: rgba(255, 255, 255, 0.95);
+            background-color: var(--surface);
             backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid var(--surface-border);
             box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+            color: var(--text);
         }
 
         .contact-footer {
             background-color: rgba(0,0,0,0.2);
             color: #f8f9fa;
+        }
+
+        /* Card interactivity */
+        .card {
+            transition: transform 160ms ease, box-shadow 160ms ease;
+            will-change: transform;
+        }
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 30px rgba(0,0,0,0.18);
+        }
+        .tilt {
+            transform-style: preserve-3d;
+        }
+        .tilt .card-body > * {
+            transform: translateZ(14px);
+        }
+
+        /* Theme toggle */
+        .theme-toggle {
+            border: 1px solid var(--surface-border);
+            color: var(--text);
+        }
+        .theme-toggle:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
         }
     </style>
 </head>
@@ -55,14 +97,22 @@
     <div class="main-content">
         <!-- Header and Welcome -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="display-6">
-                Welcome, 
-                <span sec:authentication="name" class="text-primary">User</span>! 
-            </h1>
+            <div class="d-flex align-items-center">
+                <a th:href="@{/profile/edit}" sec:authorize="hasAuthority('ROLE_USER')" class="btn btn-outline-secondary me-3" title="Edit Profile">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-gear-fill" viewBox="0 0 16 16">
+                        <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+                    </svg>
+                </a>
+                <h1 class="display-6 mb-0">
+                    Welcome, 
+                    <span th:text="${user != null ? user.name : #authentication.name}" class="text-primary">User</span>! 
+                </h1>
+            </div>
             <div class="text-end">
                 <span class="badge bg-secondary me-3">
-                    Role: <span sec:authentication="authorities">ROLE</span>
+                    Role: <span th:text="${user != null && user.role.name() == 'ADMIN' ? 'ADMIN' : 'Student'}">ROLE</span>
                 </span>
+                <button id="themeBtn" type="button" class="btn btn-sm btn-outline-secondary theme-toggle me-2">Toggle Theme</button>
                 <a th:href="@{/logout}" class="btn btn-outline-danger">Logout</a>
             </div>
         </div>
@@ -77,7 +127,7 @@
         <div class="row g-4 mt-3">
             <!-- Student Cards -->
             <div sec:authorize="hasAuthority('ROLE_USER')" class="col-md-6 col-lg-4">
-                <div class="card h-100 border-success shadow-sm">
+                <div class="card h-100 border-success shadow-sm tilt">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-success">My Pass & Payments</h5>
                         <p class="card-text">View your digital bus pass, assigned route, and manage installment fees.</p>
@@ -91,7 +141,7 @@
 
             <!-- Driver/Admin Actions -->
             <div sec:authorize="hasAnyAuthority('ROLE_ADMIN', 'ROLE_DRIVER')" class="col-md-6 col-lg-4">
-                <div class="card h-100 border-warning shadow-sm">
+                <div class="card h-100 border-warning shadow-sm tilt">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-warning">Post Notices</h5>
                         <p class="card-text">Send urgent updates (delays, schedule changes) to all students.</p>
@@ -104,14 +154,15 @@
 
             <!-- Admin Tools -->
             <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="col-md-6 col-lg-4">
-                <div class="card h-100 border-danger shadow-sm">
+                <div class="card h-100 border-danger shadow-sm tilt">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-danger">Administrator Tools</h5>
                         <p class="card-text">Manage users, define bus routes, and set payment due dates.</p>
                         <div class="mt-auto">
                             <a th:href="@{/drivers}" class="btn btn-danger w-100 mb-2">Manage Drivers</a>
                             <a th:href="@{/buses}" class="btn btn-outline-danger w-100 mb-2">Manage Buses & Routes</a>
-                            <a th:href="@{/payments}" class="btn btn-outline-danger w-100">Manage All Payments</a>
+                            <a th:href="@{/payments}" class="btn btn-outline-danger w-100 mb-2">Manage All Payments</a>
+                            <a th:href="@{/faq/manage}" class="btn btn-outline-danger w-100">Manage FAQs</a>
                         </div>
                     </div>
                 </div>
@@ -119,12 +170,34 @@
             
             <!-- Common Cards for All Users -->
              <div class="col-md-6 col-lg-4">
-                <div class="card h-100 border-info shadow-sm">
+                <div class="card h-100 border-info shadow-sm tilt">
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-info">Live Bus Tracking</h5>
                         <p class="card-text">View a real-time map of all active bus locations and their routes.</p>
                         <div class="mt-auto">
                             <a th:href="@{/track}" class="btn btn-info w-100 text-white">Track Buses Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-success shadow-sm tilt">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-success">View Buses & Routes</h5>
+                        <p class="card-text">Browse all buses and their assigned routes and stops.</p>
+                        <div class="mt-auto">
+                            <a th:href="@{/buses}" class="btn btn-success w-100">View Buses & Routes</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 border-dark shadow-sm tilt">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title text-dark">View Notices</h5>
+                        <p class="card-text">See important updates about schedules, delays, and announcements.</p>
+                        <div class="mt-auto">
+                            <a th:href="@{/notices}" class="btn btn-dark w-100">View Notices</a>
                         </div>
                     </div>
                 </div>
@@ -285,6 +358,36 @@
     resizeCanvas();
     init();
     animate();
+
+    // Card tilt interaction
+    document.querySelectorAll('.tilt').forEach(card => {
+        const strength = 10;
+        const rect = () => card.getBoundingClientRect();
+        card.addEventListener('mousemove', (e) => {
+            const r = rect();
+            const cx = r.left + r.width / 2;
+            const cy = r.top + r.height / 2;
+            const dx = (e.clientX - cx) / (r.width / 2);
+            const dy = (e.clientY - cy) / (r.height / 2);
+            card.style.transform = `rotateY(${dx * strength}deg) rotateX(${dy * -strength}deg)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = '';
+        });
+    });
+
+    // Theme toggle with persistence
+    const root = document.documentElement;
+    const themeBtn = document.getElementById('themeBtn');
+    const storedTheme = localStorage.getItem('theme');
+    if (storedTheme) {
+        root.setAttribute('data-theme', storedTheme);
+    }
+    themeBtn.addEventListener('click', () => {
+        const current = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', current);
+        localStorage.setItem('theme', current);
+    });
 </script>
 
 </body>

@@ -33,6 +33,8 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/register", 
                     "/login", 
+                    "/forgot-password",
+                    "/forgot-password/**",
                     "/css/**", 
                     "/js/**", 
                     "/images/**", 
@@ -49,7 +51,11 @@ public class SecurityConfig {
                     "/payments/delete/**",
                     "/drivers/add",
                     "/notices/add",
-                    "/notices/delete/**"
+                    "/notices/delete/**",
+                    "/faq/manage",
+                    "/faq/add",
+                    "/faq/edit/**",
+                    "/faq/delete/**"
                 ).hasAuthority("ROLE_ADMIN")
                 
                 .requestMatchers(
@@ -59,7 +65,7 @@ public class SecurityConfig {
                     "/faq", 
                     "/track"
                 ).authenticated()
-                .requestMatchers("/payments", "/notices", "/pass").authenticated() // Added /pass endpoint
+                .requestMatchers("/payments", "/notices", "/pass", "/profile/**").authenticated() // Added /pass and /profile endpoints
 
                 .anyRequest().authenticated()
             )

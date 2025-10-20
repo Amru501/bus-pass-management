@@ -11,7 +11,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -37,7 +36,8 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(unique = true)
+    @NotBlank
+    @Column(nullable = false, unique = true)
     private String phone;
 
     @NotBlank
@@ -48,10 +48,6 @@ public class User implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
-
-    @Lob
-    @Column(columnDefinition = "TEXT")
-    private String imageUrl;
 
     // *** FIX APPLIED HERE ***
     // The DRIVER role has been removed to separate login accounts from driver profiles.
