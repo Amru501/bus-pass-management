@@ -8,9 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
-    
-    <!-- Lottie Player Script -->
-    <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 
     <style>
         body {
@@ -27,10 +24,14 @@
             text-align: center;
             padding: 20px;
         }
-        lottie-player {
-            width: 250px;
-            height: 250px;
-            margin: 0 auto 1rem auto;
+        .illustration-container {
+            width: 300px; /* Increased size for the new image */
+            height: auto;
+            margin: 0 auto 1.5rem auto;
+        }
+        .error-image {
+            max-width: 100%;
+            height: auto;
         }
         h1 {
             font-size: 2.25rem;
@@ -63,13 +64,10 @@
 </head>
 <body>
     <div class="error-container">
-        <lottie-player 
-            src="/animations/error-animation.json" 
-            background="transparent" 
-            speed="1" 
-            autoplay 
-            loop>
-        </lottie-player>
+        <div class="illustration-container">
+            <!-- Replaced the SVG with an <img> tag pointing to the new image -->
+            <img th:src="@{/images/buscrash.png}" alt="Illustration of a crashed bus" class="error-image" />
+        </div>
         
         <h1>System Unavailable</h1>
         <p>

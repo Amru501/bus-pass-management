@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Driver Information</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .driver-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .driver-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+        }
+        .profile-img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <a th:href="@{/}" class="btn btn-secondary mb-4">← Back to Dashboard</a>
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Driver Contact Information</h2>
+    </div>
+
+    <!-- ADMIN: ADD NEW DRIVER SECTION -->
+    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="card mb-5 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Admin: Add New Driver</h5>
+        </div>
+        <div class="card-body">
+            <form th:action="@{/drivers/add}" th:object="${newDriverProfile}" method="post" enctype="multipart/form-data">
+                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+                <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" th:field="*{name}" class="form-control" id="name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email Address</label>
+                        <input type="email" th:field="*{email}" class="form-control" id="email" required>
+                    </div>
+                    <div class="col-md-12">
+                        <label for="phone" class="form-label">Phone Number</label>
+                        <input type="tel" th:field="*{phone}" class="form-control" id="phone">
+                    </div>
+                    <div class="col-12">
+                        <label for="imageFile" class="form-label">Driver Photo</label>
+                        <input type="file" name="imageFile" class="form-control" id="imageFile" accept="image/png, image/jpeg" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="assignedBusId" class="form-label">Assign to Bus (Optional)</label>
+                        <select name="assignedBusId" class="form-select" id="assignedBusId">
+                            <option value="">-- No Bus Assigned --</option>
+                            <option th:each="bus : ${buses}" th:value="${bus.id}" th:text="${bus.busNumber + ' - ' + bus.route}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-end mt-3">
+                    <button type="submit" class="btn btn-primary">Add Driver Profile</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- STUDENT & ADMIN: VIEW DRIVERS -->
+    <div th:if="${#lists.isEmpty(drivers)}" class="alert alert-info">
+        No driver information is currently available. Please check back later.
+    </div>
+
+    <div th:unless="${#lists.isEmpty(drivers)}" class="row g-4">
+        <div th:each="driver : ${drivers}" class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm driver-card">
+                <div class="card-body text-center">
+                    
+                    <img th:if="${driver.imageBase64}" th:src="@{'data:image/png;base64,' + ${driver.imageBase64}}" class="rounded-circle mb-3 profile-img" alt="Driver Picture">
+                    
+                    <svg th:unless="${driver.imageBase64}" xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-person-circle text-secondary mb-3" viewBox="0 0 16 16">
+                      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                      <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                    </svg>
+
+                    <h5 class="card-title" th:text="${driver.name}">John Doe</h5>
+                    <ul class="list-unstyled text-muted mt-3 mb-0">
+                        <li class="mb-2">
+                            <a th:href="${'mailto:' + driver.email}" class="text-decoration-none" th:text="${driver.email}">driver@example.com</a>
+                        </li>
+                        <li class="mb-2">
+                            <span th:text="${driver.phone ?: 'Phone Not Available'}">N/A</span>
+                        </li>
+                        <li>
+                            <span th:if="${driver.assignedBus}" class="badge bg-primary" th:text="${'Bus: ' + driver.assignedBus.busNumber}">Bus: MH 01 AB 1234</span>
+                            <span th:unless="${driver.assignedBus}" class="badge bg-secondary">No Bus Assigned</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

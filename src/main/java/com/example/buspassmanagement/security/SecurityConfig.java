@@ -30,33 +30,39 @@ public class SecurityConfig {
 
         http
             .authorizeHttpRequests(auth -> auth
-                // --- RULE ORDER: MOST SPECIFIC TO MOST GENERAL ---
-
-                // 1. PUBLIC ASSETS & PAGES (Accessible to everyone)
                 .requestMatchers(
                     "/register", 
                     "/login", 
-                    "/error", // Allow access to the custom error page
                     "/css/**", 
                     "/js/**", 
-                    "/images/**", 
-                    "/webjars/**",
-                    "/animations/**" // *** NEW: Allow access to animations folder ***
+                    "/images/**", // For error page image
+                    "/animations/**" // For error page animation
                 ).permitAll()
-
-                // 2. ADMIN-ONLY MANAGEMENT ACTIONS
-                .requestMatchers("/buses/add", "/buses/update", "/buses/edit/**", "/buses/delete/**").hasAuthority("ROLE_ADMIN")
-                .requestMatchers("/payments/add", "/payments/create", "/payments/delete/**").hasAuthority("ROLE_ADMIN")
                 
-                // 3. DRIVER & ADMIN ACTIONS
-                .requestMatchers("/notices/add", "/notices/delete/**").hasAnyAuthority("ROLE_ADMIN", "ROLE_DRIVER")
-
-                // 4. GENERAL AUTHENTICATED VIEWING
-                .requestMatchers("/track").authenticated() // Secure the new track page
-                .requestMatchers(HttpMethod.GET, "/buses").authenticated() 
+                // ADMIN-ONLY MANAGEMENT ACTIONS
+                .requestMatchers(
+                    "/buses/add", 
+                    "/buses/update", 
+                    "/buses/edit/**", 
+                    "/buses/delete/**",
+                    "/payments/add", 
+                    "/payments/create", 
+                    "/payments/delete/**",
+                    "/drivers/add", // Adding a driver is an admin action
+                    "/notices/add", // Posting notices is now admin-only
+                    "/notices/delete/**"
+                ).hasAuthority("ROLE_ADMIN")
+                
+                // GENERAL AUTHENTICATED VIEWING
+                .requestMatchers(
+                    HttpMethod.GET, 
+                    "/buses", 
+                    "/drivers", // All authenticated users can view drivers
+                    "/faq", 
+                    "/track"
+                ).authenticated()
                 .requestMatchers("/payments", "/notices").authenticated()
 
-                // 5. CATCH-ALL
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form

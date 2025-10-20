@@ -44,34 +44,26 @@ public class NoticeController {
         return "notices";
     }
 
-    /**
-     * SHOW ADD NOTICE FORM
-     * * *** FIX APPLIED HERE ***
-     * Initializes the Notice object with a non-null, empty Bus object.
-     * This prevents a NullPointerException in the template, regardless of whether
-     * it uses `th:field="*{bus.id}"` or `name="busId"`. This makes the controller
-     * more robust against template errors.
-     */
     @GetMapping("/add")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DRIVER')")
+    // Since drivers can no longer log in, only ADMINs can post notices.
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String addNoticeForm(Model model) {
         if (!model.containsAttribute("notice")) {
             Notice notice = new Notice();
-            notice.setBus(new Bus()); // Defensively prevent NullPointerException in template
+            notice.setBus(new Bus());
             model.addAttribute("notice", notice);
         }
-        // Add buses for the dropdown
         try {
             model.addAttribute("buses", busService.getAllBuses());
         } catch (Exception e) {
-            // If this fails, it might be a DB connection issue.
             model.addAttribute("errorMessage", "Could not load bus list. Please check system configuration.");
         }
         return "notices-add";
     }
 
     @PostMapping("/add")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DRIVER')")
+    // Authorization updated to ADMIN only.
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String saveNotice(@Valid @ModelAttribute("notice") Notice notice,
                              BindingResult bindingResult,
                              @RequestParam("busId") String busIdValue,
@@ -128,7 +120,8 @@ public class NoticeController {
     }
 
     @GetMapping("/delete/{id}")
-    @PreAuthorize("hasAnyAuthority('ROLE_ADMIN', 'ROLE_DRIVER')")
+    // Authorization updated to ADMIN only.
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String deleteNotice(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         noticeService.deleteNotice(id);
         redirectAttributes.addFlashAttribute("successMessage", "Notice deleted successfully.");
