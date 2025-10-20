@@ -35,11 +35,10 @@ public class SecurityConfig {
                     "/login", 
                     "/css/**", 
                     "/js/**", 
-                    "/images/**", // For error page image
-                    "/animations/**" // For error page animation
+                    "/images/**", 
+                    "/animations/**"
                 ).permitAll()
                 
-                // ADMIN-ONLY MANAGEMENT ACTIONS
                 .requestMatchers(
                     "/buses/add", 
                     "/buses/update", 
@@ -48,20 +47,19 @@ public class SecurityConfig {
                     "/payments/add", 
                     "/payments/create", 
                     "/payments/delete/**",
-                    "/drivers/add", // Adding a driver is an admin action
-                    "/notices/add", // Posting notices is now admin-only
+                    "/drivers/add",
+                    "/notices/add",
                     "/notices/delete/**"
                 ).hasAuthority("ROLE_ADMIN")
                 
-                // GENERAL AUTHENTICATED VIEWING
                 .requestMatchers(
                     HttpMethod.GET, 
                     "/buses", 
-                    "/drivers", // All authenticated users can view drivers
+                    "/drivers",
                     "/faq", 
                     "/track"
                 ).authenticated()
-                .requestMatchers("/payments", "/notices").authenticated()
+                .requestMatchers("/payments", "/notices", "/pass").authenticated() // Added /pass endpoint
 
                 .anyRequest().authenticated()
             )
@@ -84,4 +82,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
