@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Route Installment</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-warning text-dark">
+                        <h3 class="mb-0">Edit Route Installment Configuration</h3>
+                    </div>
+                    <div class="card-body">
+                        <form th:action="@{/route-installments/edit/{id}(id=${routeInstallment.id})}" th:object="${routeInstallment}" method="post">
+                            
+                            <!-- Route Name (Display Only) -->
+                            <div class="mb-3">
+                                <label for="routeName" class="form-label">Route Name</label>
+                                <input type="text" class="form-control" id="routeName" th:field="*{routeName}" readonly>
+                                <div class="form-text">Route name cannot be changed. Delete and create new configuration if needed.</div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Installment 1 -->
+                            <h5 class="mb-3">Installment 1</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="installment1Amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" class="form-control" id="installment1Amount" 
+                                           th:field="*{installment1Amount}" required min="0">
+                                    <div th:if="${#fields.hasErrors('installment1Amount')}" class="text-danger" th:errors="*{installment1Amount}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="installment1Deadline" class="form-label">Deadline <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="installment1Deadline" 
+                                           th:field="*{installment1Deadline}" required>
+                                    <div th:if="${#fields.hasErrors('installment1Deadline')}" class="text-danger" th:errors="*{installment1Deadline}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Installment 2 -->
+                            <h5 class="mb-3">Installment 2</h5>
+                            <div class="row mb-3">
+                                <div class="col-md-6">
+                                    <label for="installment2Amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" class="form-control" id="installment2Amount" 
+                                           th:field="*{installment2Amount}" required min="0">
+                                    <div th:if="${#fields.hasErrors('installment2Amount')}" class="text-danger" th:errors="*{installment2Amount}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="installment2Deadline" class="form-label">Deadline <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="installment2Deadline" 
+                                           th:field="*{installment2Deadline}" required>
+                                    <div th:if="${#fields.hasErrors('installment2Deadline')}" class="text-danger" th:errors="*{installment2Deadline}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Installment 3 -->
+                            <h5 class="mb-3">Installment 3</h5>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="installment3Amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                                    <input type="number" step="0.01" class="form-control" id="installment3Amount" 
+                                           th:field="*{installment3Amount}" required min="0">
+                                    <div th:if="${#fields.hasErrors('installment3Amount')}" class="text-danger" th:errors="*{installment3Amount}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="installment3Deadline" class="form-label">Deadline <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" id="installment3Deadline" 
+                                           th:field="*{installment3Deadline}" required>
+                                    <div th:if="${#fields.hasErrors('installment3Deadline')}" class="text-danger" th:errors="*{installment3Deadline}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/route-installments}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-warning">Update Configuration</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

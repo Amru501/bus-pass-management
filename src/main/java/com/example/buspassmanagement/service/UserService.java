@@ -39,4 +39,12 @@ public class UserService {
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
+
+    /**
+     * Update user without re-encoding password
+     * Used for updating user fields like busPassActive, selectedRoute, etc.
+     */
+    public User updateUser(User user) {
+        return userRepository.save(user);
+    }
 }

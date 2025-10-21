@@ -32,7 +32,7 @@ public class Payment {
     private Long id;
 
     // JPA Relationship: A payment belongs to ONE User
-    @ManyToOne 
+    @ManyToOne(fetch = jakarta.persistence.FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false) 
     @NotNull(message = "User is required for payment.")
     private User user;
@@ -50,6 +50,22 @@ public class Payment {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 15) 
     private PaymentStatus status = PaymentStatus.PENDING; 
+
+    // Route name for which this payment is made
+    @Column(nullable = true)
+    private String routeName;
+
+    // Installment number (1, 2, or 3) - null means full payment
+    @Column(nullable = true)
+    private Integer installmentNumber;
+
+    // Payment date - when the payment was actually made
+    @Column(nullable = true)
+    private LocalDate paymentDate;
+
+    // Is this a full payment (all 3 installments together)?
+    @Column(nullable = false)
+    private Boolean isFullPayment = false;
     
     // Define the Enum for status
     public enum PaymentStatus {

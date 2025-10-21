@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Route Installments</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Manage Route Installments</h2>
+            <div>
+                <a th:href="@{/route-installments/add}" class="btn btn-primary">Add New Route Installment</a>
+                <a th:href="@{/}" class="btn btn-secondary">Back to Dashboard</a>
+            </div>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Route Installments Table -->
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <div th:if="${#lists.isEmpty(installments)}" class="alert alert-info">
+                    No route installments configured yet. Click "Add New Route Installment" to get started.
+                </div>
+
+                <div th:if="${!#lists.isEmpty(installments)}" class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Route Name</th>
+                                <th>Installment 1</th>
+                                <th>Installment 2</th>
+                                <th>Installment 3</th>
+                                <th>Total Fee</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="installment : ${installments}">
+                                <td><strong th:text="${installment.routeName}"></strong></td>
+                                <td>
+                                    <div>₹<span th:text="${installment.installment1Amount}"></span></div>
+                                    <small class="text-muted">Due: <span th:text="${#temporals.format(installment.installment1Deadline, 'dd/MM/yyyy')}"></span></small>
+                                </td>
+                                <td>
+                                    <div>₹<span th:text="${installment.installment2Amount}"></span></div>
+                                    <small class="text-muted">Due: <span th:text="${#temporals.format(installment.installment2Deadline, 'dd/MM/yyyy')}"></span></small>
+                                </td>
+                                <td>
+                                    <div>₹<span th:text="${installment.installment3Amount}"></span></div>
+                                    <small class="text-muted">Due: <span th:text="${#temporals.format(installment.installment3Deadline, 'dd/MM/yyyy')}"></span></small>
+                                </td>
+                                <td><strong>₹<span th:text="${installment.totalFee}"></span></strong></td>
+                                <td>
+                                    <a th:href="@{/route-installments/edit/{id}(id=${installment.id})}" class="btn btn-sm btn-warning">Edit</a>
+                                    <form th:action="@{/route-installments/delete/{id}(id=${installment.id})}" method="post" style="display:inline;" 
+                                          onsubmit="return confirm('Are you sure you want to delete this route installment configuration?');">
+                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

@@ -49,6 +49,10 @@ public class User implements Serializable {
     @Column(nullable = false)
     private Role role = Role.USER;
 
+    // *** NOTE ***
+    // Bus pass fields (selectedRoute, busPassActive) have been moved to the BusPass entity
+    // for better database design and separation of concerns.
+
     // *** FIX APPLIED HERE ***
     // The DRIVER role has been removed to separate login accounts from driver profiles.
     public enum Role { USER, ADMIN }

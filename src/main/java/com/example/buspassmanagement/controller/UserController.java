@@ -7,6 +7,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes; // Import for flash messages
 
 import com.example.buspassmanagement.model.User;
@@ -36,8 +37,12 @@ public class UserController {
     @PostMapping("/register")
     public String registerUser(@Valid @ModelAttribute("user") User user,
                                BindingResult result,
+                               @RequestParam(value = "securityKey", required = false) String securityKey,
                                Model model,
                                RedirectAttributes redirectAttributes) {
+        
+        // Security key for admin registration
+        final String ADMIN_SECURITY_KEY = "Amru@1234";
         
         // 1. Handle Validation Errors (e.g., password empty, name empty)
         if (result.hasErrors()) {
@@ -45,7 +50,19 @@ public class UserController {
             return "register"; 
         }
 
-        // 2. Handle Email Duplication Error
+        // 2. Handle Admin Security Key Validation
+        if (user.getRole() == User.Role.ADMIN) {
+            if (securityKey == null || securityKey.trim().isEmpty()) {
+                model.addAttribute("securityKeyError", "Security key is required for admin registration.");
+                return "register";
+            }
+            if (!ADMIN_SECURITY_KEY.equals(securityKey)) {
+                model.addAttribute("securityKeyError", "Invalid security key. Access denied.");
+                return "register";
+            }
+        }
+
+        // 3. Handle Email Duplication Error
         if (userService.findByEmail(user.getEmail()).isPresent()) {
             // Adds the error message required by register.html
             model.addAttribute("emailError", "An account with this email already exists.");
@@ -53,11 +70,13 @@ public class UserController {
             return "register"; 
         }
 
-        // 3. Save User (Password Hashing should happen in UserService)
+        // 4. Save User (Password Hashing should happen in UserService)
         userService.saveUser(user); // Assuming this is the method that calls the repository and hashes the password
         
-        // 4. Redirect to Login with success message
-        redirectAttributes.addFlashAttribute("successMessage", "Registration successful! Please log in.");
+        // 5. Redirect to Login with success message
+        String roleMessage = (user.getRole() == User.Role.ADMIN) ? "Admin" : "Student";
+        redirectAttributes.addFlashAttribute("successMessage", 
+            roleMessage + " registration successful! Please log in.");
         return "redirect:/login";
     }
 

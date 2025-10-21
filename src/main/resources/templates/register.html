@@ -18,7 +18,8 @@
             min-height: 100vh;
             font-family: 'Inter', sans-serif;
             margin: 0;
-            overflow: hidden;
+            padding: 10px 0;
+            overflow-y: auto;
             position: relative;
         }
         
@@ -33,14 +34,71 @@
         }
 
         .register-card {
-            max-width: 500px;
+            max-width: 450px;
             width: 100%;
-            padding: 25px;
-            border-radius: 1rem;
+            padding: 12px 18px;
+            border-radius: 0.8rem;
             background-color: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(8px);
             z-index: 1;
             border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .register-card .card-body {
+            padding: 0.3rem;
+        }
+        
+        .register-card .mb-2 {
+            margin-bottom: 0.3rem !important;
+        }
+        
+        .register-card .mb-3 {
+            margin-bottom: 0.4rem !important;
+        }
+        
+        .register-card .mb-4 {
+            margin-bottom: 0.5rem !important;
+        }
+        
+        .register-card h3 {
+            margin-bottom: 0.3rem !important;
+            font-size: 1.25rem;
+        }
+        
+        .register-card p {
+            margin-bottom: 0.4rem !important;
+            font-size: 0.8rem;
+        }
+        
+        .register-card .form-label {
+            margin-bottom: 0.15rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .register-card .form-control,
+        .register-card .form-select {
+            padding: 0.35rem 0.6rem;
+            font-size: 0.875rem;
+        }
+        
+        .register-card .btn {
+            padding: 0.45rem;
+            font-size: 0.9rem;
+        }
+        
+        .register-card small {
+            font-size: 0.7rem;
+        }
+        
+        .register-card .alert {
+            padding: 0.4rem;
+            font-size: 0.8rem;
+            margin-bottom: 0.4rem;
+        }
+        
+        .register-card .invalid-feedback {
+            font-size: 0.7rem;
         }
     </style>
 </head>
@@ -51,8 +109,8 @@
 
 <div class="card register-card shadow-lg border-0">
     <div class="card-body">
-        <h3 class="card-title text-center mb-4 text-primary">Student Registration</h3>
-        <p class="text-center text-muted mb-4">Register to access payment and route info.</p>
+        <h3 class="card-title text-center mb-2 text-primary">Registration</h3>
+        <p class="text-center text-muted mb-3">Register as Student or Admin</p>
         
         <form th:action="@{/register}" th:object="${user}" method="post">
             
@@ -61,6 +119,7 @@
             </div>
             
             <div th:if="${emailError}" class="alert alert-danger" th:text="${emailError}"></div>
+            <div th:if="${securityKeyError}" class="alert alert-danger" th:text="${securityKeyError}"></div>
 
             <div class="mb-3">
                 <label for="name" class="form-label">Full Name</label>
@@ -80,20 +139,34 @@
                 <div class="invalid-feedback" th:errors="*{phone}"></div>
             </div>
 
-            <div class="mb-4">
+            <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" th:field="*{password}" class="form-control" th:errorclass="is-invalid" id="password" placeholder="••••••••" required>
                 <div class="invalid-feedback" th:errors="*{password}"></div>
             </div>
-            
-            <input type="hidden" th:field="*{role}" th:value="USER" />
 
-            <div class="d-grid mb-3">
-                <button type="submit" class="btn btn-primary btn-lg shadow-sm">Register</button>
+            <div class="mb-3">
+                <label for="role" class="form-label">Register As</label>
+                <select class="form-select" id="role" name="role" th:field="*{role}" onchange="toggleSecurityKey()" required>
+                    <option value="USER" selected>Student</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </div>
+
+            <div class="mb-4" id="securityKeyDiv" style="display: none;">
+                <label for="securityKey" class="form-label">
+                    Admin Security Key <span class="text-danger">*</span>
+                </label>
+                <input type="password" class="form-control" id="securityKey" name="securityKey" placeholder="Enter admin security key">
+                <small class="text-muted">Required for admin registration</small>
+            </div>
+
+            <div class="d-grid mb-2">
+                <button type="submit" class="btn btn-primary shadow-sm">Register</button>
             </div>
             
-            <div class="text-center mt-3">
-                <p class="text-muted mb-0">Already have an account? <a th:href="@{/login}" class="text-decoration-none">Login here</a></p>
+            <div class="text-center mt-1">
+                <p class="text-muted mb-0" style="font-size: 0.85rem;">Already have an account? <a th:href="@{/login}" class="text-decoration-none">Login here</a></p>
             </div>
         </form>
     </div>
@@ -211,6 +284,27 @@
     resizeCanvas();
     init();
     animate();
+
+    // Function to toggle security key field visibility
+    function toggleSecurityKey() {
+        const role = document.getElementById('role').value;
+        const securityKeyDiv = document.getElementById('securityKeyDiv');
+        const securityKeyInput = document.getElementById('securityKey');
+        
+        if (role === 'ADMIN') {
+            securityKeyDiv.style.display = 'block';
+            securityKeyInput.setAttribute('required', 'required');
+        } else {
+            securityKeyDiv.style.display = 'none';
+            securityKeyInput.removeAttribute('required');
+            securityKeyInput.value = '';
+        }
+    }
+
+    // Check on page load if role is already set to ADMIN (in case of validation errors)
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleSecurityKey();
+    });
 </script>
 
 </body>

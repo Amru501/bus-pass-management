@@ -2,7 +2,6 @@ package com.example.buspassmanagement.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -46,8 +45,6 @@ public class SecurityConfig {
                     "/buses/update", 
                     "/buses/edit/**", 
                     "/buses/delete/**",
-                    "/payments/add", 
-                    "/payments/create", 
                     "/payments/delete/**",
                     "/drivers/add",
                     "/notices/add",
@@ -55,17 +52,25 @@ public class SecurityConfig {
                     "/faq/manage",
                     "/faq/add",
                     "/faq/edit/**",
-                    "/faq/delete/**"
+                    "/faq/delete/**",
+                    "/route-installments",
+                    "/route-installments/**"
                 ).hasAuthority("ROLE_ADMIN")
                 
                 .requestMatchers(
-                    HttpMethod.GET, 
                     "/buses", 
                     "/drivers",
                     "/faq", 
-                    "/track"
-                ).authenticated()
-                .requestMatchers("/payments", "/notices", "/pass", "/profile/**").authenticated() // Added /pass and /profile endpoints
+                    "/track",
+                    "/payments", 
+                    "/payments/installments",
+                    "/payments/select-route",
+                    "/payments/pay-installment",
+                    "/payments/pay-all-installments",
+                    "/notices", 
+                    "/pass", 
+                    "/profile/**"
+                ).hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
 
                 .anyRequest().authenticated()
             )

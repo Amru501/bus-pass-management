@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Bus Pass Fees</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .installment-card {
+            transition: transform 0.2s;
+        }
+        .installment-card:hover {
+            transform: translateY(-5px);
+        }
+        .paid-badge {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .pending-badge {
+            background-color: #ffc107;
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Bus Pass Payment</h2>
+            <a th:href="@{/}" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+    <!-- Route Selection (if no route selected) -->
+    <div th:if="${busPass == null or busPass.selectedRoute == null}" class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Step 1: Select Your Route</h4>
+            </div>
+            <div class="card-body">
+                <p>Please select the bus route you want to use:</p>
+                
+                <div th:if="${#lists.isEmpty(routes)}" class="alert alert-warning">
+                    No routes available yet. Please contact admin.
+                </div>
+
+                <div th:if="${!#lists.isEmpty(routes)}" class="row">
+                    <div th:each="route : ${routes}" class="col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h5 class="card-title" th:text="${route.routeName}"></h5>
+                                <hr>
+                                <p class="mb-2"><strong>Total Fee:</strong> ₹<span th:text="${route.totalFee}"></span></p>
+                                <div class="small text-muted">
+                                    <div>Installment 1: ₹<span th:text="${route.installment1Amount}"></span> (Due: <span th:text="${#temporals.format(route.installment1Deadline, 'dd/MM/yyyy')}"></span>)</div>
+                                    <div>Installment 2: ₹<span th:text="${route.installment2Amount}"></span> (Due: <span th:text="${#temporals.format(route.installment2Deadline, 'dd/MM/yyyy')}"></span>)</div>
+                                    <div>Installment 3: ₹<span th:text="${route.installment3Amount}"></span> (Due: <span th:text="${#temporals.format(route.installment3Deadline, 'dd/MM/yyyy')}"></span>)</div>
+                                </div>
+                                <form th:action="@{/payments/select-route}" method="post" class="mt-3">
+                                    <input type="hidden" name="routeName" th:value="${route.routeName}">
+                                    <button type="submit" class="btn btn-primary btn-sm">Select This Route</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Payment Options (if route selected) -->
+    <div th:if="${busPass != null and busPass.selectedRoute != null}">
+            <!-- Pass Status Banner -->
+            <div class="card shadow-sm mb-4" th:classappend="${paymentStatus.busPassActive} ? 'border-success' : 'border-warning'">
+                <div class="card-body text-center" th:classappend="${paymentStatus.busPassActive} ? 'bg-success bg-opacity-10' : 'bg-warning bg-opacity-10'">
+                    <h4 th:if="${paymentStatus.busPassActive}">
+                        <span class="badge bg-success">✓ Bus Pass Active</span>
+                    </h4>
+                    <h4 th:if="${!paymentStatus.busPassActive}">
+                        <span class="badge bg-warning text-dark">⚠ Bus Pass Inactive</span>
+                    </h4>
+                    <p class="mb-0">Selected Route: <strong th:text="${busPass.selectedRoute}"></strong></p>
+                </div>
+            </div>
+
+            <!-- Payment Information -->
+            <div th:if="${selectedRoute != null}">
+                <h4 class="mb-3">Payment Details</h4>
+
+                <!-- Show if already paid in full -->
+                <div th:if="${paymentStatus.hasFullPayment}" class="alert alert-success">
+                    <h5>✓ All installments paid!</h5>
+                    <p class="mb-0">You have paid the full amount of ₹<span th:text="${selectedRoute.totalFee}"></span>. Your bus pass is active.</p>
+                </div>
+
+                <!-- Show payment options if not fully paid -->
+                <div th:if="${!paymentStatus.hasFullPayment && !paymentStatus.busPassActive}">
+                    <div class="row mb-4">
+                        <!-- Individual Installments -->
+                        <div class="col-md-4 mb-3">
+                            <div class="card installment-card h-100" th:classappend="${paymentStatus.hasInstallment1} ? 'border-success' : ''">
+                                <div class="card-header" th:classappend="${paymentStatus.hasInstallment1} ? 'bg-success text-white' : 'bg-primary text-white'">
+                                    <h5 class="mb-0">Installment 1</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h3 class="text-center">₹<span th:text="${selectedRoute.installment1Amount}"></span></h3>
+                                    <p class="text-center text-muted">Due: <span th:text="${#temporals.format(selectedRoute.installment1Deadline, 'dd MMM yyyy')}"></span></p>
+                                    
+                                    <div th:if="${paymentStatus.hasInstallment1}" class="text-center">
+                                        <span class="paid-badge">✓ PAID</span>
+                                    </div>
+                                    <div th:if="${!paymentStatus.hasInstallment1}">
+                                        <form th:action="@{/payments/pay-installment}" method="post">
+                                            <input type="hidden" name="installmentNumber" value="1">
+                                            <button type="submit" class="btn btn-primary w-100">Pay Now</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card installment-card h-100" th:classappend="${paymentStatus.hasInstallment2} ? 'border-success' : ''">
+                                <div class="card-header" th:classappend="${paymentStatus.hasInstallment2} ? 'bg-success text-white' : 'bg-primary text-white'">
+                                    <h5 class="mb-0">Installment 2</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h3 class="text-center">₹<span th:text="${selectedRoute.installment2Amount}"></span></h3>
+                                    <p class="text-center text-muted">Due: <span th:text="${#temporals.format(selectedRoute.installment2Deadline, 'dd MMM yyyy')}"></span></p>
+                                    
+                                    <div th:if="${paymentStatus.hasInstallment2}" class="text-center">
+                                        <span class="paid-badge">✓ PAID</span>
+                                    </div>
+                                    <div th:if="${!paymentStatus.hasInstallment2}">
+                                        <form th:action="@{/payments/pay-installment}" method="post">
+                                            <input type="hidden" name="installmentNumber" value="2">
+                                            <button type="submit" class="btn btn-primary w-100">Pay Now</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card installment-card h-100" th:classappend="${paymentStatus.hasInstallment3} ? 'border-success' : ''">
+                                <div class="card-header" th:classappend="${paymentStatus.hasInstallment3} ? 'bg-success text-white' : 'bg-primary text-white'">
+                                    <h5 class="mb-0">Installment 3</h5>
+                                </div>
+                                <div class="card-body">
+                                    <h3 class="text-center">₹<span th:text="${selectedRoute.installment3Amount}"></span></h3>
+                                    <p class="text-center text-muted">Due: <span th:text="${#temporals.format(selectedRoute.installment3Deadline, 'dd MMM yyyy')}"></span></p>
+                                    
+                                    <div th:if="${paymentStatus.hasInstallment3}" class="text-center">
+                                        <span class="paid-badge">✓ PAID</span>
+                                    </div>
+                                    <div th:if="${!paymentStatus.hasInstallment3}">
+                                        <form th:action="@{/payments/pay-installment}" method="post">
+                                            <input type="hidden" name="installmentNumber" value="3">
+                                            <button type="submit" class="btn btn-primary w-100">Pay Now</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pay All Option -->
+                    <div class="card shadow-sm border-success" th:if="${!paymentStatus.hasInstallment1 && !paymentStatus.hasInstallment2 && !paymentStatus.hasInstallment3}">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">💰 Pay All Together</h4>
+                        </div>
+                        <div class="card-body text-center">
+                            <h3>Total: ₹<span th:text="${selectedRoute.totalFee}"></span></h3>
+                            <p class="text-muted">Pay all 3 installments at once and activate your bus pass immediately!</p>
+                            <form th:action="@{/payments/pay-all-installments}" method="post" onsubmit="return confirm('Are you sure you want to pay all installments (₹' + [[${selectedRoute.totalFee}]] + ')?');">
+                                <button type="submit" class="btn btn-success btn-lg">Pay Full Amount</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Text -->
+        <div class="card shadow-sm mt-4">
+            <div class="card-body">
+                <h5>Payment Information</h5>
+                <ul>
+                    <li>You can pay installments individually before their due dates</li>
+                    <li>Or you can pay all 3 installments together at once</li>
+                    <li>Your bus pass will become active once all installments are paid</li>
+                    <li>Make sure to pay before the deadline to avoid service interruption</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+

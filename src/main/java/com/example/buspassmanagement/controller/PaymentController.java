@@ -1,8 +1,6 @@
 package com.example.buspassmanagement.controller;
 
 import java.security.Principal;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,10 +16,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.buspassmanagement.model.BusPass;
 import com.example.buspassmanagement.model.Payment;
 import com.example.buspassmanagement.model.Payment.PaymentStatus;
+import com.example.buspassmanagement.model.RouteInstallment;
 import com.example.buspassmanagement.model.User;
+import com.example.buspassmanagement.service.BusPassService;
 import com.example.buspassmanagement.service.PaymentService;
+import com.example.buspassmanagement.service.RouteInstallmentService;
 import com.example.buspassmanagement.service.UserService;
 
 @Controller
@@ -33,6 +35,12 @@ public class PaymentController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RouteInstallmentService routeInstallmentService;
+
+    @Autowired
+    private BusPassService busPassService;
 
     /**
      * Displays payment records.
@@ -110,57 +118,10 @@ public class PaymentController {
         return "payment";
     }
 
-    /**
-     * ADMIN: Shows the form to create a new fee schedule for a student.
-     * Provides a list of all students (users) to the form.
-     */
-    @GetMapping("/add")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public String showAddPaymentForm(Model model) {
-        List<User> students = userService.getAllUsers().stream()
-                .filter(user -> user.getRole() == User.Role.USER)
-                .collect(Collectors.toList());
-        model.addAttribute("students", students);
-        return "payment-add";
-    }
-
-    /**
-     * ADMIN: Processes the creation of a new 3-installment fee schedule for a specific user.
-     */
-    @PostMapping("/create")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public String createFeeSchedule(@RequestParam("userId") Long userId,
-                                    @RequestParam("inst1Amount") Double inst1Amount,
-                                    @RequestParam("inst1DueDate") String inst1DueDateStr,
-                                    @RequestParam("inst2Amount") Double inst2Amount,
-                                    @RequestParam("inst2DueDate") String inst2DueDateStr,
-                                    @RequestParam("inst3Amount") Double inst3Amount,
-                                    @RequestParam("inst3DueDate") String inst3DueDateStr,
-                                    RedirectAttributes redirectAttributes) {
-        try {
-            User student = userService.findById(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Student not found for ID: " + userId));
-
-            Payment inst1 = new Payment(null, student, inst1Amount, LocalDate.parse(inst1DueDateStr), PaymentStatus.PENDING);
-            Payment inst2 = new Payment(null, student, inst2Amount, LocalDate.parse(inst2DueDateStr), PaymentStatus.PENDING);
-            Payment inst3 = new Payment(null, student, inst3Amount, LocalDate.parse(inst3DueDateStr), PaymentStatus.PENDING);
-
-            paymentService.addPayment(inst1);
-            paymentService.addPayment(inst2);
-            paymentService.addPayment(inst3);
-
-            redirectAttributes.addFlashAttribute("successMessage", "Fee schedule successfully created for " + student.getName() + ".");
-
-        } catch (IllegalArgumentException | DateTimeParseException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Failed to create schedule. Reason: " + e.getMessage());
-            return "redirect:/payments/add";
-        } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "An unexpected server error occurred.");
-            return "redirect:/payments/add";
-        }
-        return "redirect:/payments";
-    }
+    // NOTE: Manual fee schedule creation for individual students has been removed.
+    // Fee schedules are now managed through route-based installments.
+    // Admins should use /route-installments to configure installments per route.
+    // Students select their routes and pay accordingly via /payments/installments.
 
     /**
      * USER: Marks a single pending installment as PAID.
@@ -214,6 +175,161 @@ public class PaymentController {
         paymentService.deletePayment(id);
         redirectAttributes.addFlashAttribute("successMessage", "Payment record deleted successfully.");
         return "redirect:/payments";
+    }
+
+    /**
+     * USER: View available route installments and payment options
+     */
+    @GetMapping("/installments")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public String viewInstallments(Model model, Principal principal) {
+        try {
+            User currentUser = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Get all route installment configurations
+            List<RouteInstallment> allRoutes = routeInstallmentService.findAll();
+            model.addAttribute("routes", allRoutes);
+
+            // Get user's bus pass
+            BusPass busPass = busPassService.findByUser(currentUser).orElse(null);
+            
+            // Get user's selected route and payment status
+            if (busPass != null && busPass.getSelectedRoute() != null) {
+                RouteInstallment selectedRouteInstallment = routeInstallmentService
+                    .findByRouteName(busPass.getSelectedRoute())
+                    .orElse(null);
+                model.addAttribute("selectedRoute", selectedRouteInstallment);
+                
+                // Get payment status
+                PaymentService.PaymentStatusInfo paymentStatus = paymentService.getPaymentStatus(currentUser);
+                model.addAttribute("paymentStatus", paymentStatus);
+            }
+
+            model.addAttribute("user", currentUser);
+            model.addAttribute("busPass", busPass);
+
+        } catch (Exception e) {
+            model.addAttribute("errorMessage", "Error loading installment information: " + e.getMessage());
+            model.addAttribute("routes", Collections.emptyList());
+        }
+
+        return "payment-installments";
+    }
+
+    /**
+     * USER: Select a route
+     */
+    @PostMapping("/select-route")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public String selectRoute(@RequestParam("routeName") String routeName,
+                             Principal principal,
+                             RedirectAttributes redirectAttributes) {
+        try {
+            User currentUser = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+            // Verify route exists
+            routeInstallmentService.findByRouteName(routeName)
+                .orElseThrow(() -> new IllegalArgumentException("Route not found"));
+
+            // Get or create bus pass for user
+            BusPass busPass = busPassService.getOrCreateBusPass(currentUser);
+
+            // Check if user already has payments for another route
+            if (busPass.getSelectedRoute() != null && 
+                !busPass.getSelectedRoute().equals(routeName)) {
+                List<Payment> existingPayments = paymentService.getPaymentsByUserId(currentUser.getId())
+                    .stream()
+                    .filter(p -> p.getStatus() == PaymentStatus.PAID)
+                    .collect(Collectors.toList());
+                
+                if (!existingPayments.isEmpty()) {
+                    redirectAttributes.addFlashAttribute("errorMessage", 
+                        "You already have payments for another route. Please contact admin to change routes.");
+                    return "redirect:/payments/installments";
+                }
+            }
+
+            // Set selected route on bus pass
+            busPass.setSelectedRoute(routeName);
+            busPassService.save(busPass);
+
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Route selected successfully! You can now proceed with payments.");
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error selecting route: " + e.getMessage());
+        }
+
+        return "redirect:/payments/installments";
+    }
+
+    /**
+     * USER: Pay a specific installment
+     */
+    @PostMapping("/pay-installment")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public String payInstallment(@RequestParam("installmentNumber") Integer installmentNumber,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+        try {
+            User currentUser = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+            BusPass busPass = busPassService.findByUser(currentUser).orElse(null);
+            
+            if (busPass == null || busPass.getSelectedRoute() == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Please select a route first.");
+                return "redirect:/payments/installments";
+            }
+
+            paymentService.payInstallment(currentUser, busPass.getSelectedRoute(), installmentNumber);
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "Installment " + installmentNumber + " paid successfully!");
+
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error processing payment: " + e.getMessage());
+        }
+
+        return "redirect:/payments/installments";
+    }
+
+    /**
+     * USER: Pay all 3 installments together
+     */
+    @PostMapping("/pay-all-installments")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    public String payAllInstallments(Principal principal, RedirectAttributes redirectAttributes) {
+        try {
+            User currentUser = userService.findByEmail(principal.getName())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+            BusPass busPass = busPassService.findByUser(currentUser).orElse(null);
+            
+            if (busPass == null || busPass.getSelectedRoute() == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", 
+                    "Please select a route first.");
+                return "redirect:/payments/installments";
+            }
+
+            paymentService.payAllInstallments(currentUser, busPass.getSelectedRoute());
+            redirectAttributes.addFlashAttribute("successMessage", 
+                "All installments paid successfully! Your bus pass is now active.");
+
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error processing payment: " + e.getMessage());
+        }
+
+        return "redirect:/payments/installments";
     }
 }
 

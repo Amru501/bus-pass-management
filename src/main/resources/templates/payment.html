@@ -11,33 +11,26 @@
 <div class="container mt-5">
     <a th:href="@{/}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
     
-    <h2 class="mb-4" sec:authorize="hasAuthority('ROLE_ADMIN')">All Payment Records</h2>
-    <h2 class="mb-4" sec:authorize="hasAuthority('ROLE_USER')">My Installments</h2>
+    <h2 class="mb-4" sec:authorize="hasAuthority('ROLE_ADMIN')">Payment History (All Students)</h2>
+    <h2 class="mb-4" sec:authorize="hasAuthority('ROLE_USER')">My Payment History</h2>
 
     <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
 
-    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="mb-4">
-        <a th:href="@{/payments/add}" class="btn btn-danger shadow-sm">Create New Fee Schedule for Student</a>
+    <!-- Admin Info Message -->
+    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="alert alert-info mb-4">
+        <strong>💡 Manage Payments:</strong> To configure installments for routes, go to 
+        <a th:href="@{/route-installments}" class="alert-link">Manage Route Installments</a>.
     </div>
 
-    <!-- STUDENT: Payment Summary & Quick Pay -->
-    <div sec:authorize="hasAuthority('ROLE_USER')" class="card mb-4">
-        <div class="card-header">Payment Summary</div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5>Total Paid: <span class="text-success" th:text="${'₹' + #numbers.formatDecimal(totalPaid, 1, 'COMMA', 2, 'POINT')}"></span></h5>
-                </div>
-                <div class="col-md-4">
-                    <h5>Total Pending: <span class="text-danger" th:text="${'₹' + #numbers.formatDecimal(totalPending, 1, 'COMMA', 2, 'POINT')}"></span></h5>
-                </div>
-                <div class="col-md-4 text-end" th:if="${totalPending > 0}">
-                    <form th:action="@{/payments/pay-full}" method="post" onsubmit="return confirm('Pay the full outstanding sum?');">
-                        <button type="submit" class="btn btn-success shadow">Pay Full Balance</button>
-                    </form>
-                </div>
+    <!-- STUDENT: Payment Info and Action -->
+    <div sec:authorize="hasAuthority('ROLE_USER')" class="alert alert-primary mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <strong>💳 Need to pay your bus pass fees?</strong>
+                <p class="mb-0 small">Select your route and pay installments</p>
             </div>
+            <a th:href="@{/payments/installments}" class="btn btn-primary">Go to Payment Page</a>
         </div>
     </div>
 

@@ -73,6 +73,10 @@
             <div class="user-details">
                 <h4 th:text="${user.name}">Student Name</h4>
                 <p class="text-white-50" th:text="${user.email}">student.email@example.com</p>
+                <div th:if="${busPass != null and busPass.selectedRoute != null}" class="mb-3">
+                    <small class="text-white-50">Route:</small>
+                    <p class="mb-0 fw-bold" th:text="${busPass.selectedRoute}">Route Name</p>
+                </div>
             </div>
             
             <div class="qr-code-container">
@@ -85,6 +89,33 @@
                       th:classappend="${passStatus == 'ACTIVE'} ? 'bg-success' : 'bg-danger'"
                       class="badge rounded-pill status-badge">
                 </span>
+            </div>
+
+            <!-- Payment Status Details -->
+            <div th:if="${passStatus == 'INACTIVE'}" class="mt-3">
+                <div class="alert alert-warning mt-3 mx-auto" style="max-width: 300px;">
+                    <small>
+                        <strong>⚠ Pass Inactive</strong><br>
+                        <span th:if="${busPass == null or busPass.selectedRoute == null}">Please select a route and pay fees.</span>
+                        <span th:if="${busPass != null and busPass.selectedRoute != null && paymentStatus != null}">
+                            <span th:if="${!paymentStatus.hasInstallment1}">• Installment 1: Pending<br></span>
+                            <span th:if="${!paymentStatus.hasInstallment2}">• Installment 2: Pending<br></span>
+                            <span th:if="${!paymentStatus.hasInstallment3}">• Installment 3: Pending<br></span>
+                        </span>
+                    </small>
+                    <a th:href="@{/payments/installments}" class="btn btn-warning btn-sm mt-2 w-100">
+                        <small>Pay Now</small>
+                    </a>
+                </div>
+            </div>
+
+            <div th:if="${passStatus == 'ACTIVE'}" class="mt-3">
+                <div class="alert alert-success mt-3 mx-auto" style="max-width: 300px;">
+                    <small>
+                        <strong>✓ All fees paid!</strong><br>
+                        Your bus pass is active and valid.
+                    </small>
+                </div>
             </div>
             
             <p class="mt-4 small text-white-50">This pass is non-transferable.</p>
