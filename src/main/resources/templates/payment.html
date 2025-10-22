@@ -4,76 +4,482 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Payment Management</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: var(--bg-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .payment-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .info-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .info-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+        
+        .info-card.admin {
+            border-left: 4px solid var(--accent-cyan);
+        }
+        
+        .info-card.student {
+            border-left: 4px solid var(--accent-purple);
+        }
+        
+        .info-card h6 {
+            color: var(--text-primary);
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .info-card p {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+        
+        .info-card .btn {
+            margin-top: 10px;
+        }
+        
+        .payment-table-container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .table {
+            margin-bottom: 0;
+            color: var(--text-primary);
+        }
+        
+        .table thead th {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            font-weight: 600;
+            padding: 20px 15px;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .table tbody tr {
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid var(--glass-border);
+            transition: all 0.3s ease;
+        }
+        
+        .table tbody tr:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: scale(1.01);
+        }
+        
+        .table tbody tr.paid {
+            background: rgba(79, 172, 254, 0.1);
+        }
+        
+        .table tbody td {
+            padding: 20px 15px;
+            border: none;
+            vertical-align: middle;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-paid {
+            background: var(--success-gradient);
+            color: white;
+        }
+        
+        .status-pending {
+            background: var(--warning-gradient);
+            color: white;
+        }
+        
+        .status-overdue {
+            background: var(--danger-gradient);
+            color: white;
+        }
+        
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-pay {
+            background: var(--primary-gradient);
+            color: white;
+        }
+        
+        .btn-pay:hover {
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.3);
+        }
+        
+        .btn-delete {
+            background: var(--danger-gradient);
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .empty-state {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 60px 30px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h4 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .table-responsive {
+                border-radius: 20px;
+            }
+            
+            .table thead th,
+            .table tbody td {
+                padding: 15px 10px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 <body>
 
-<div class="container mt-5">
-    <a th:href="@{/}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
-    
-    <h2 class="mb-4" sec:authorize="hasAuthority('ROLE_ADMIN')">Payment History (All Students)</h2>
-    <h2 class="mb-4" sec:authorize="hasAuthority('ROLE_USER')">My Payment History</h2>
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
 
+<div class="payment-container">
+    <div class="page-header">
+        <h1 class="page-title" sec:authorize="hasAuthority('ROLE_ADMIN')">
+            <i class="fas fa-credit-card me-3"></i>Payment History (All Students)
+        </h1>
+        <h1 class="page-title" sec:authorize="hasAuthority('ROLE_USER')">
+            <i class="fas fa-credit-card me-3"></i>My Payment History
+        </h1>
+        <p class="page-subtitle">Track and manage your bus pass payments</p>
+    </div>
+    
+    <div class="mb-4">
+        <a th:href="@{/}" class="btn btn-futuristic btn-secondary-futuristic">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
+    </div>
+
+    <!-- Success/Error Messages -->
     <div th:if="${successMessage}" class="alert alert-success" role="alert" th:text="${successMessage}"></div>
     <div th:if="${errorMessage}" class="alert alert-danger" role="alert" th:text="${errorMessage}"></div>
 
     <!-- Admin Info Message -->
-    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="alert alert-info mb-4">
-        <strong>💡 Manage Payments:</strong> To configure installments for routes, go to 
-        <a th:href="@{/route-installments}" class="alert-link">Manage Route Installments</a>.
+    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="info-card admin">
+        <h6>
+            <i class="fas fa-info-circle"></i>Manage Payments
+        </h6>
+        <p>To configure installments for routes, go to <a th:href="@{/route-installments}" class="text-decoration-none" style="color: var(--accent-cyan);">Manage Route Installments</a>.</p>
     </div>
 
-    <!-- STUDENT: Payment Info and Action -->
-    <div sec:authorize="hasAuthority('ROLE_USER')" class="alert alert-primary mb-4">
-        <div class="d-flex justify-content-between align-items-center">
+    <!-- Student Payment Info -->
+    <div sec:authorize="hasAuthority('ROLE_USER')" class="info-card student">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
             <div>
-                <strong>💳 Need to pay your bus pass fees?</strong>
-                <p class="mb-0 small">Select your route and pay installments</p>
+                <h6>
+                    <i class="fas fa-credit-card"></i>Need to pay your bus pass fees?
+                </h6>
+                <p class="mb-0">Select your route and pay installments</p>
             </div>
-            <a th:href="@{/payments/installments}" class="btn btn-primary">Go to Payment Page</a>
+            <a th:href="@{/payments/installments}" class="btn btn-futuristic btn-primary-futuristic">
+                <i class="fas fa-arrow-right me-2"></i>Go to Payment Page
+            </a>
         </div>
     </div>
 
     <!-- MAIN PAYMENT TABLE -->
-    <div th:if="${#lists.isEmpty(payments) and (errorMessage == null)}" class="alert alert-info">
-        No payment records found.
+    <div th:if="${#lists.isEmpty(payments) and (errorMessage == null)}" class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-receipt"></i>
+        </div>
+        <h4>No Payment Records Found</h4>
+        <p>No payment records are available at the moment.</p>
     </div>
     
-    <div th:unless="${#lists.isEmpty(payments)}" class="table-responsive">
-        <table class="table table-striped table-hover shadow-sm">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th sec:authorize="hasAuthority('ROLE_ADMIN')">Student</th>
-                    <th>Amount</th>
-                    <th>Due Date</th>
-                    <th>Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="p : ${payments}" th:classappend="${p.status != null && p.status.name() == 'PAID' ? 'table-success' : ''}">
-                    <td th:text="${p.id}">1</td>
-                    <td sec:authorize="hasAuthority('ROLE_ADMIN')" th:text="${p.user != null ? p.user.name : 'N/A'}">Student Name</td>
-                    <td th:text="${'₹' + #numbers.formatDecimal(p.amount != null ? p.amount : 0, 1, 'COMMA', 2, 'POINT')}">₹1500.00</td>
-                    <td th:text="${p.dueDate != null ? #temporals.format(p.dueDate, 'dd-MMM-yyyy') : 'N/A'}">20-Dec-2025</td>
-                    <td>
-                        <span th:text="${p.status != null ? p.status.name() : 'UNKNOWN'}"
-                              th:classappend="${p.status != null && p.status.name() == 'PAID' ? 'badge bg-success' : 'badge bg-warning text-dark'}">STATUS</span>
-                    </td>
-                    <td>
-                        <a th:if="${p.status.name() == 'PENDING'}" sec:authorize="hasAuthority('ROLE_USER')" 
-                           th:href="@{/payments/pay/{id}(id=${p.id})}" class="btn btn-sm btn-primary">Pay Now</a>
-                        <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/payments/delete/{id}(id=${p.id})}" 
-                           class="btn btn-sm btn-danger" onclick="return confirm('Delete this payment record?');">Delete</a>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+    <div th:unless="${#lists.isEmpty(payments)}" class="payment-table-container">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th><i class="fas fa-hashtag me-2"></i>ID</th>
+                        <th sec:authorize="hasAuthority('ROLE_ADMIN')"><i class="fas fa-user me-2"></i>Student</th>
+                        <th><i class="fas fa-rupee-sign me-2"></i>Amount</th>
+                        <th><i class="fas fa-calendar me-2"></i>Due Date</th>
+                        <th><i class="fas fa-info-circle me-2"></i>Status</th>
+                        <th><i class="fas fa-cogs me-2"></i>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${payments}" th:classappend="${p.status != null && p.status.name() == 'PAID' ? 'paid' : ''}">
+                        <td th:text="${p.id}">1</td>
+                        <td sec:authorize="hasAuthority('ROLE_ADMIN')" th:text="${p.user != null ? p.user.name : 'N/A'}">Student Name</td>
+                        <td th:text="${'₹' + #numbers.formatDecimal(p.amount != null ? p.amount : 0, 1, 'COMMA', 2, 'POINT')}">₹1500.00</td>
+                        <td th:text="${p.dueDate != null ? #temporals.format(p.dueDate, 'dd-MMM-yyyy') : 'N/A'}">20-Dec-2025</td>
+                        <td>
+                            <span th:text="${p.status != null ? p.status.name() : 'UNKNOWN'}"
+                                  th:classappend="${p.status != null && p.status.name() == 'PAID' ? 'status-badge status-paid' : 'status-badge status-pending'}">STATUS</span>
+                        </td>
+                        <td>
+                            <a th:if="${p.status.name() == 'PENDING'}" sec:authorize="hasAuthority('ROLE_USER')" 
+                               th:href="@{/payments/pay/{id}(id=${p.id})}" class="action-btn btn-pay">
+                                <i class="fas fa-credit-card"></i>Pay Now
+                            </a>
+                            <a sec:authorize="hasAuthority('ROLE_ADMIN')" th:href="@{/payments/delete/{id}(id=${p.id})}" 
+                               class="action-btn btn-delete" onclick="return confirm('Delete this payment record?');">
+                                <i class="fas fa-trash"></i>Delete
+                            </a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 12;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        
+        // Add entrance animation to table rows
+        const tableRows = document.querySelectorAll('.table tbody tr');
+        tableRows.forEach((row, index) => {
+            row.style.animation = `slideInUp 0.6s ease-out ${index * 0.05}s both`;
+        });
+        
+        // Add hover effects to table rows
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.background = 'rgba(0, 255, 255, 0.1)';
+                this.style.transform = 'scale(1.01)';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.background = this.classList.contains('paid') ? 'rgba(79, 172, 254, 0.1)' : 'rgba(255, 255, 255, 0.05)';
+                this.style.transform = 'scale(1)';
+            });
+        });
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>
-

@@ -4,107 +4,474 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Driver Information</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
-            background-color: #f8f9fa;
+            background: var(--bg-primary);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
         }
+        
+        .drivers-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .admin-section {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .admin-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .admin-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 15s linear infinite reverse;
+        }
+        
+        .admin-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .admin-body {
+            padding: 30px;
+        }
+        
+        .form-floating-futuristic {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .form-floating-futuristic input,
+        .form-floating-futuristic select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            padding: 16px 14px 6px;
+            height: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .form-floating-futuristic input:focus,
+        .form-floating-futuristic select:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.2);
+            outline: none;
+        }
+        
+        .form-floating-futuristic label {
+            color: var(--text-secondary);
+            padding: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-floating-futuristic input:focus ~ label,
+        .form-floating-futuristic input:not(:placeholder-shown) ~ label,
+        .form-floating-futuristic select:focus ~ label,
+        .form-floating-futuristic select:not([value=""]) ~ label {
+            color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+        
         .driver-card {
-            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            box-shadow: var(--glass-shadow);
+            height: 100%;
         }
+        
         .driver-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(0, 255, 255, 0.15);
         }
+        
+        .driver-card-body {
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .driver-card-body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+        
         .profile-img {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid var(--accent-cyan);
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .driver-card:hover .profile-img {
+            transform: scale(1.05);
+            border-color: var(--accent-purple);
+        }
+        
+        .driver-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .driver-info {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .driver-info li {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+        
+        .driver-info a {
+            color: var(--accent-cyan);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .driver-info a:hover {
+            color: var(--accent-purple);
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        
+        .bus-badge {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+        }
+        
+        .no-bus-badge {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 10px;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .empty-state {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 60px 30px;
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h4 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .admin-body {
+                padding: 20px;
+            }
+            
+            .driver-card-body {
+                padding: 20px 15px;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="container mt-5">
-    <a th:href="@{/}" class="btn btn-secondary mb-4">← Back to Dashboard</a>
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
+
+<div class="drivers-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-users me-3"></i>Driver Information
+        </h1>
+        <p class="page-subtitle">Contact details and profiles of our bus drivers</p>
+    </div>
     
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="mb-0">Driver Contact Information</h2>
+    <div class="mb-4">
+        <a th:href="@{/}" class="btn btn-futuristic btn-secondary-futuristic">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
     </div>
 
     <!-- ADMIN: ADD NEW DRIVER SECTION -->
-    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="card mb-5 shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h5 class="mb-0">Admin: Add New Driver</h5>
+    <div sec:authorize="hasAuthority('ROLE_ADMIN')" class="admin-section">
+        <div class="admin-header">
+            <h5 class="admin-title">
+                <i class="fas fa-user-plus me-2"></i>Add New Driver
+            </h5>
         </div>
-        <div class="card-body">
+        <div class="admin-body">
             <form th:action="@{/drivers/add}" th:object="${newDriverProfile}" method="post" enctype="multipart/form-data">
                 <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
                 <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
 
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label for="name" class="form-label">Full Name</label>
-                        <input type="text" th:field="*{name}" class="form-control" id="name" required>
+                        <div class="form-floating-futuristic">
+                            <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Full Name" required>
+                            <label for="name">
+                                <i class="fas fa-user me-2"></i>Full Name
+                            </label>
+                        </div>
                     </div>
                     <div class="col-md-6">
-                        <label for="email" class="form-label">Email Address</label>
-                        <input type="email" th:field="*{email}" class="form-control" id="email" required>
+                        <div class="form-floating-futuristic">
+                            <input type="email" th:field="*{email}" class="form-control" id="email" placeholder="Email Address" required>
+                            <label for="email">
+                                <i class="fas fa-envelope me-2"></i>Email Address
+                            </label>
+                        </div>
                     </div>
                     <div class="col-md-12">
-                        <label for="phone" class="form-label">Phone Number</label>
-                        <input type="tel" th:field="*{phone}" class="form-control" id="phone">
+                        <div class="form-floating-futuristic">
+                            <input type="tel" th:field="*{phone}" class="form-control" id="phone" placeholder="Phone Number">
+                            <label for="phone">
+                                <i class="fas fa-phone me-2"></i>Phone Number
+                            </label>
+                        </div>
                     </div>
                     <div class="col-12">
-                        <label for="imageFile" class="form-label">Driver Photo</label>
+                        <div class="form-floating-futuristic">
                         <input type="file" name="imageFile" class="form-control" id="imageFile" accept="image/png, image/jpeg" required>
+                            <label for="imageFile">
+                                <i class="fas fa-camera me-2"></i>Driver Photo
+                            </label>
+                        </div>
                     </div>
                     <div class="col-12">
-                        <label for="assignedBusId" class="form-label">Assign to Bus (Optional)</label>
+                        <div class="form-floating-futuristic">
                         <select name="assignedBusId" class="form-select" id="assignedBusId">
                             <option value="">-- No Bus Assigned --</option>
                             <option th:each="bus : ${buses}" th:value="${bus.id}" th:text="${bus.busNumber + ' - ' + bus.route}"></option>
                         </select>
+                            <label for="assignedBusId">
+                                <i class="fas fa-bus me-2"></i>Assign to Bus (Optional)
+                            </label>
+                        </div>
                     </div>
                 </div>
-                <div class="d-flex justify-content-end mt-3">
-                    <button type="submit" class="btn btn-primary">Add Driver Profile</button>
+                <div class="d-flex justify-content-end mt-4">
+                    <button type="submit" class="btn btn-futuristic btn-primary-futuristic">
+                        <i class="fas fa-plus me-2"></i>Add Driver Profile
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 
-
     <!-- STUDENT & ADMIN: VIEW DRIVERS -->
-    <div th:if="${#lists.isEmpty(drivers)}" class="alert alert-info">
-        No driver information is currently available. Please check back later.
+    <div th:if="${#lists.isEmpty(drivers)}" class="empty-state">
+        <div class="empty-state-icon">
+            <i class="fas fa-user-slash"></i>
+        </div>
+        <h4>No Driver Information Available</h4>
+        <p>Please check back later for driver contact details.</p>
     </div>
 
     <div th:unless="${#lists.isEmpty(drivers)}" class="row g-4">
         <div th:each="driver : ${drivers}" class="col-md-6 col-lg-4">
-            <div class="card h-100 shadow-sm driver-card">
-                <div class="card-body text-center">
+            <div class="driver-card">
+                <div class="driver-card-body">
+                    <!-- Driver Image -->
+                    <img th:if="${driver.image}" th:src="@{'data:image/png;base64,' + ${driver.image}}" class="profile-img" alt="Driver Picture">
                     
-                    <!-- *** THE FIX *** Changed driver.imageBase64 to driver.image -->
-                    <img th:if="${driver.image}" th:src="@{'data:image/png;base64,' + ${driver.image}}" class="rounded-circle mb-3 profile-img" alt="Driver Picture">
-                    
-                    <!-- *** THE FIX *** Changed driver.imageBase64 to driver.image -->
-                    <svg th:unless="${driver.image}" xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" class="bi bi-person-circle text-secondary mb-3" viewBox="0 0 16 16">
-                      <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
-                      <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
-                    </svg>
+                    <!-- Default Avatar -->
+                    <div th:unless="${driver.image}" class="profile-img d-flex align-items-center justify-content-center bg-secondary">
+                        <i class="fas fa-user fa-2x text-white"></i>
+                    </div>
 
-                    <h5 class="card-title" th:text="${driver.name}">John Doe</h5>
-                    <ul class="list-unstyled text-muted mt-3 mb-0">
-                        <li class="mb-2">
-                            <a th:href="${'mailto:' + driver.email}" class="text-decoration-none" th:text="${driver.email}">driver@example.com</a>
+                    <h5 class="driver-name" th:text="${driver.name}">John Doe</h5>
+                    <ul class="driver-info">
+                        <li>
+                            <i class="fas fa-envelope me-2"></i>
+                            <a th:href="${'mailto:' + driver.email}" th:text="${driver.email}">driver@example.com</a>
                         </li>
-                        <li class="mb-2">
+                        <li>
+                            <i class="fas fa-phone me-2"></i>
                             <span th:text="${driver.phone ?: 'Phone Not Available'}">N/A</span>
                         </li>
                         <li>
-                            <span th:if="${driver.assignedBus}" class="badge bg-primary" th:text="${'Bus: ' + driver.assignedBus.busNumber}">Bus: MH 01 AB 1234</span>
-                            <span th:unless="${driver.assignedBus}" class="badge bg-secondary">No Bus Assigned</span>
+                            <span th:if="${driver.assignedBus}" class="bus-badge" th:text="${'Bus: ' + driver.assignedBus.busNumber}">Bus: MH 01 AB 1234</span>
+                            <span th:unless="${driver.assignedBus}" class="no-bus-badge">No Bus Assigned</span>
                         </li>
                     </ul>
                 </div>
@@ -114,5 +481,63 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 12;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        
+        // Add entrance animation to driver cards
+        const driverCards = document.querySelectorAll('.driver-card');
+        driverCards.forEach((card, index) => {
+            card.style.animation = `slideInUp 0.6s ease-out ${index * 0.1}s both`;
+        });
+        
+        // Add hover effects to driver cards
+        driverCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+                this.style.boxShadow = '0 20px 50px rgba(0, 255, 255, 0.15)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'var(--glass-shadow)';
+            });
+        });
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>

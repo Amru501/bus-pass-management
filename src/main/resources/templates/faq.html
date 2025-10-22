@@ -4,88 +4,370 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frequently Asked Questions (FAQ)</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
-            background-color: #f8f9fa;
+            background: var(--bg-primary);
             font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
         }
+        
+        .faq-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
         .faq-header {
-            background-color: #0d6efd;
-            color: white;
-            padding: 3rem 1.5rem;
-            margin-bottom: 3rem;
-            border-radius: 0.5rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
         }
-        .accordion-button:not(.collapsed) {
-            color: #0c63e4;
-            background-color: #e7f1ff;
+        
+        .faq-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
         }
+        
+        .faq-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .faq-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .faq-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .accordion {
+            --bs-accordion-bg: transparent;
+            --bs-accordion-border-color: var(--glass-border);
+            --bs-accordion-border-radius: 16px;
+            --bs-accordion-border-width: 1px;
+            --bs-accordion-btn-padding-x: 24px;
+            --bs-accordion-btn-padding-y: 20px;
+            --bs-accordion-btn-color: var(--text-primary);
+            --bs-accordion-btn-bg: var(--glass-bg);
+            --bs-accordion-btn-focus-border-color: var(--accent-cyan);
+            --bs-accordion-btn-focus-box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.2);
+            --bs-accordion-body-padding-x: 24px;
+            --bs-accordion-body-padding-y: 20px;
+            --bs-accordion-active-color: var(--accent-cyan);
+            --bs-accordion-active-bg: rgba(0, 255, 255, 0.1);
+        }
+        
         .accordion-item {
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            border: 1px solid #dee2e6;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+            transition: all 0.3s ease;
         }
-        .accordion-header {
-            border-radius: 0.5rem;
+        
+        .accordion-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0, 255, 255, 0.1);
+        }
+        
+        .accordion-button {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: none;
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1.1rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .accordion-button:not(.collapsed) {
+            background: rgba(0, 255, 255, 0.1);
+            color: var(--accent-cyan);
+            box-shadow: none;
+        }
+        
+        .accordion-button:focus {
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.2);
+            border-color: var(--accent-cyan);
+        }
+        
+        .accordion-button::after {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%2300ffff'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+        }
+        
+        .accordion-body {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+        
+        .empty-state-icon {
+            font-size: 4rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+        }
+        
+        .empty-state h4 {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .faq-title {
+                font-size: 2rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-buttons > div {
+                width: 100%;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container my-5">
-        
-        <div class="faq-header text-center">
-            <h1 class="display-5 fw-bold">Frequently Asked Questions</h1>
-            <p class="lead">Find answers to common questions about the bus pass system.</p>
-        </div>
 
-        <div class="d-flex justify-content-between mb-4">
-            <div>
-                <a th:href="@{/}" class="btn btn-outline-secondary">← Back to Dashboard</a>
-            </div>
-            <div sec:authorize="hasAuthority('ROLE_ADMIN')">
-                <a th:href="@{/faq/manage}" class="btn btn-primary">Manage FAQs</a>
-            </div>
-        </div>
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
 
-        <div class="accordion" id="faqAccordion">
-            <div th:each="faq, iterStat : ${faqs}" class="accordion-item">
-                <h2 class="accordion-header" th:id="'heading' + ${faq.id}">
-                    <button class="accordion-button" 
-                            th:classappend="${iterStat.first} ? '' : 'collapsed'"
-                            type="button" 
-                            th:data-bs-target="'#collapse' + ${faq.id}"
-                            th:aria-controls="'collapse' + ${faq.id}"
-                            th:aria-expanded="${iterStat.first} ? 'true' : 'false'"
-                            data-bs-toggle="collapse" 
-                            th:data-bs-parent="'#faqAccordion'">
-                        <span th:text="${faq.question}">Question</span>
-                    </button>
-                </h2>
-                <div th:id="'collapse' + ${faq.id}" 
-                     class="accordion-collapse collapse" 
-                     th:classappend="${iterStat.first} ? 'show' : ''"
-                     th:aria-labelledby="'heading' + ${faq.id}" 
-                     data-bs-parent="#faqAccordion">
-                    <div class="accordion-body">
-                        <span th:text="${faq.answer}">Answer</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Show message if no FAQs exist -->
-            <div th:if="${#lists.isEmpty(faqs)}" class="text-center py-5">
-                <h4 class="text-muted">No FAQs available</h4>
-                <p class="text-muted">Check back later for frequently asked questions.</p>
-            </div>
+<div class="faq-container">
+    <div class="faq-header">
+        <h1 class="faq-title">
+            <i class="fas fa-question-circle me-3"></i>Frequently Asked Questions
+        </h1>
+        <p class="faq-subtitle">Find answers to common questions about the bus pass system</p>
+    </div>
+
+    <div class="action-buttons">
+        <div>
+            <a th:href="@{/}" class="btn btn-futuristic btn-secondary-futuristic">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+        <div sec:authorize="hasAuthority('ROLE_ADMIN')">
+            <a th:href="@{/faq/manage}" class="btn btn-futuristic btn-primary-futuristic">
+                <i class="fas fa-cog me-2"></i>Manage FAQs
+            </a>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <div class="accordion" id="faqAccordion">
+        <div th:each="faq, iterStat : ${faqs}" class="accordion-item">
+            <h2 class="accordion-header" th:id="'heading' + ${faq.id}">
+                <button class="accordion-button" 
+                        th:classappend="${iterStat.first} ? '' : 'collapsed'"
+                        type="button" 
+                        th:data-bs-target="'#collapse' + ${faq.id}"
+                        th:aria-controls="'collapse' + ${faq.id}"
+                        th:aria-expanded="${iterStat.first} ? 'true' : 'false'"
+                        data-bs-toggle="collapse" 
+                        th:data-bs-parent="'#faqAccordion'">
+                    <i class="fas fa-question-circle me-3"></i>
+                    <span th:text="${faq.question}">Question</span>
+                </button>
+            </h2>
+            <div th:id="'collapse' + ${faq.id}" 
+                 class="accordion-collapse collapse" 
+                 th:classappend="${iterStat.first} ? 'show' : ''"
+                 th:aria-labelledby="'heading' + ${faq.id}" 
+                 data-bs-parent="#faqAccordion">
+                <div class="accordion-body">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>
+                    <span th:text="${faq.answer}">Answer</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Show message if no FAQs exist -->
+        <div th:if="${#lists.isEmpty(faqs)}" class="empty-state">
+            <div class="empty-state-icon">
+                <i class="fas fa-question-circle"></i>
+            </div>
+            <h4>No FAQs Available</h4>
+            <p>Check back later for frequently asked questions.</p>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 15;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        
+        // Add entrance animation to FAQ items
+        const accordionItems = document.querySelectorAll('.accordion-item');
+        accordionItems.forEach((item, index) => {
+            item.style.animation = `slideInUp 0.6s ease-out ${index * 0.1}s both`;
+        });
+        
+        // Add hover effects to accordion items
+        accordionItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 15px 40px rgba(0, 255, 255, 0.1)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'var(--glass-shadow)';
+            });
+        });
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>
-

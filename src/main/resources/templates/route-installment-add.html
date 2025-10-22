@@ -4,104 +4,730 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Route Installment</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
+            background: var(--bg-primary);
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .installment-container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .form-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+        }
+        
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+        
+        .form-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 15s linear infinite reverse;
+        }
+        
+        .form-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .form-body {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+            outline: none;
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .form-control.is-invalid {
+            border-color: var(--accent-danger);
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .form-control.is-invalid:focus {
+            border-color: var(--accent-danger);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+            outline: none;
+        }
+        
+        .form-select option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .form-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        
+        .invalid-feedback {
+            color: var(--accent-danger);
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .installment-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .installment-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+        }
+        
+        .installment-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: var(--primary-gradient);
+            border: none;
+            margin: 30px 0;
+            border-radius: 1px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .btn-cancel {
+            background: var(--secondary-gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-cancel:hover {
+            background: var(--secondary-gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+            text-decoration: none;
+        }
+        
+        .btn-submit {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.2);
+        }
+        
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 255, 255, 0.3);
+        }
+        
+        .btn-submit:hover::before {
+            left: 100%;
+        }
+        
+        .required-indicator {
+            color: var(--accent-danger);
+            font-weight: 700;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .form-body {
+                padding: 20px;
+            }
+            
+            .installment-section {
+                padding: 20px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .form-actions > * {
+                width: 100%;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h3 class="mb-0">Add Route Installment Configuration</h3>
+
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
+
+<div class="installment-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-plus-circle me-3"></i>Add Route Installment Configuration
+        </h1>
+        <p class="page-subtitle">Configure payment schedules for bus routes</p>
+    </div>
+
+    <div class="form-card">
+        <div class="form-header">
+            <h3 class="form-title">
+                <i class="fas fa-cog"></i>Installment Configuration
+            </h3>
                     </div>
-                    <div class="card-body">
+        <div class="form-body">
                         <form th:action="@{/route-installments/add}" th:object="${routeInstallment}" method="post">
                             
                             <!-- Route Selection -->
-                            <div class="mb-3">
-                                <label for="routeName" class="form-label">Select Route <span class="text-danger">*</span></label>
+                <div class="form-group">
+                    <label for="routeName" class="form-label">
+                        <i class="fas fa-route"></i>Select Route
+                        <span class="required-indicator">*</span>
+                    </label>
                                 <select class="form-select" id="routeName" th:field="*{routeName}" required>
                                     <option value="">-- Select a Route --</option>
                                     <option th:each="bus : ${buses}" th:value="${bus.route}" th:text="${bus.route}"></option>
                                 </select>
                                 <div class="form-text">Select the route for which you want to configure installments</div>
-                                <div th:if="${#fields.hasErrors('routeName')}" class="text-danger" th:errors="*{routeName}"></div>
+                    <div th:if="${#fields.hasErrors('routeName')}" class="invalid-feedback" th:errors="*{routeName}">
+                        <i class="fas fa-exclamation-circle"></i>Route selection error
+                    </div>
                             </div>
 
-                            <hr>
+                <hr class="section-divider">
 
                             <!-- Installment 1 -->
-                            <h5 class="mb-3">Installment 1</h5>
-                            <div class="row mb-3">
+                <div class="installment-section">
+                    <h5 class="installment-title">
+                        <i class="fas fa-1"></i>Installment 1
+                    </h5>
+                    <div class="row">
                                 <div class="col-md-6">
-                                    <label for="installment1Amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                            <div class="form-group">
+                                <label for="installment1Amount" class="form-label">
+                                    <i class="fas fa-rupee-sign"></i>Amount (₹)
+                                    <span class="required-indicator">*</span>
+                                </label>
                                     <input type="number" step="0.01" class="form-control" id="installment1Amount" 
-                                           th:field="*{installment1Amount}" required min="0">
-                                    <div th:if="${#fields.hasErrors('installment1Amount')}" class="text-danger" th:errors="*{installment1Amount}"></div>
+                                       th:field="*{installment1Amount}" required min="0" placeholder="0.00">
+                                <div th:if="${#fields.hasErrors('installment1Amount')}" class="invalid-feedback" th:errors="*{installment1Amount}">
+                                    <i class="fas fa-exclamation-circle"></i>Amount error
+                                </div>
+                            </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="installment1Deadline" class="form-label">Deadline <span class="text-danger">*</span></label>
+                            <div class="form-group">
+                                <label for="installment1Deadline" class="form-label">
+                                    <i class="fas fa-calendar-alt"></i>Deadline
+                                    <span class="required-indicator">*</span>
+                                </label>
                                     <input type="date" class="form-control" id="installment1Deadline" 
                                            th:field="*{installment1Deadline}" required>
-                                    <div th:if="${#fields.hasErrors('installment1Deadline')}" class="text-danger" th:errors="*{installment1Deadline}"></div>
+                                <div th:if="${#fields.hasErrors('installment1Deadline')}" class="invalid-feedback" th:errors="*{installment1Deadline}">
+                                    <i class="fas fa-exclamation-circle"></i>Deadline error
+                                </div>
+                            </div>
+                        </div>
                                 </div>
                             </div>
 
                             <!-- Installment 2 -->
-                            <h5 class="mb-3">Installment 2</h5>
-                            <div class="row mb-3">
+                <div class="installment-section">
+                    <h5 class="installment-title">
+                        <i class="fas fa-2"></i>Installment 2
+                    </h5>
+                    <div class="row">
                                 <div class="col-md-6">
-                                    <label for="installment2Amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                            <div class="form-group">
+                                <label for="installment2Amount" class="form-label">
+                                    <i class="fas fa-rupee-sign"></i>Amount (₹)
+                                    <span class="required-indicator">*</span>
+                                </label>
                                     <input type="number" step="0.01" class="form-control" id="installment2Amount" 
-                                           th:field="*{installment2Amount}" required min="0">
-                                    <div th:if="${#fields.hasErrors('installment2Amount')}" class="text-danger" th:errors="*{installment2Amount}"></div>
+                                       th:field="*{installment2Amount}" required min="0" placeholder="0.00">
+                                <div th:if="${#fields.hasErrors('installment2Amount')}" class="invalid-feedback" th:errors="*{installment2Amount}">
+                                    <i class="fas fa-exclamation-circle"></i>Amount error
+                                </div>
+                            </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="installment2Deadline" class="form-label">Deadline <span class="text-danger">*</span></label>
+                            <div class="form-group">
+                                <label for="installment2Deadline" class="form-label">
+                                    <i class="fas fa-calendar-alt"></i>Deadline
+                                    <span class="required-indicator">*</span>
+                                </label>
                                     <input type="date" class="form-control" id="installment2Deadline" 
                                            th:field="*{installment2Deadline}" required>
-                                    <div th:if="${#fields.hasErrors('installment2Deadline')}" class="text-danger" th:errors="*{installment2Deadline}"></div>
+                                <div th:if="${#fields.hasErrors('installment2Deadline')}" class="invalid-feedback" th:errors="*{installment2Deadline}">
+                                    <i class="fas fa-exclamation-circle"></i>Deadline error
+                                </div>
+                            </div>
+                        </div>
                                 </div>
                             </div>
 
                             <!-- Installment 3 -->
-                            <h5 class="mb-3">Installment 3</h5>
-                            <div class="row mb-4">
+                <div class="installment-section">
+                    <h5 class="installment-title">
+                        <i class="fas fa-3"></i>Installment 3
+                    </h5>
+                    <div class="row">
                                 <div class="col-md-6">
-                                    <label for="installment3Amount" class="form-label">Amount (₹) <span class="text-danger">*</span></label>
+                            <div class="form-group">
+                                <label for="installment3Amount" class="form-label">
+                                    <i class="fas fa-rupee-sign"></i>Amount (₹)
+                                    <span class="required-indicator">*</span>
+                                </label>
                                     <input type="number" step="0.01" class="form-control" id="installment3Amount" 
-                                           th:field="*{installment3Amount}" required min="0">
-                                    <div th:if="${#fields.hasErrors('installment3Amount')}" class="text-danger" th:errors="*{installment3Amount}"></div>
+                                       th:field="*{installment3Amount}" required min="0" placeholder="0.00">
+                                <div th:if="${#fields.hasErrors('installment3Amount')}" class="invalid-feedback" th:errors="*{installment3Amount}">
+                                    <i class="fas fa-exclamation-circle"></i>Amount error
+                                </div>
+                            </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="installment3Deadline" class="form-label">Deadline <span class="text-danger">*</span></label>
+                            <div class="form-group">
+                                <label for="installment3Deadline" class="form-label">
+                                    <i class="fas fa-calendar-alt"></i>Deadline
+                                    <span class="required-indicator">*</span>
+                                </label>
                                     <input type="date" class="form-control" id="installment3Deadline" 
                                            th:field="*{installment3Deadline}" required>
-                                    <div th:if="${#fields.hasErrors('installment3Deadline')}" class="text-danger" th:errors="*{installment3Deadline}"></div>
+                                <div th:if="${#fields.hasErrors('installment3Deadline')}" class="invalid-feedback" th:errors="*{installment3Deadline}">
+                                    <i class="fas fa-exclamation-circle"></i>Deadline error
                                 </div>
                             </div>
-
-                            <!-- Buttons -->
-                            <div class="d-flex justify-content-between">
-                                <a th:href="@{/route-installments}" class="btn btn-secondary">Cancel</a>
-                                <button type="submit" class="btn btn-primary">Save Configuration</button>
                             </div>
-                        </form>
                     </div>
                 </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <a th:href="@{/route-installments}" class="btn-cancel">
+                        <i class="fas fa-times"></i>Cancel
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-save"></i>Save Configuration
+                    </button>
+                </div>
+            </form>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 12;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        
+        // Add entrance animation to form card
+        const formCard = document.querySelector('.form-card');
+        formCard.style.animation = 'slideInUp 0.6s ease-out both';
+        
+        // Add focus effects to form elements
+        const formElements = document.querySelectorAll('.form-control, .form-select');
+        formElements.forEach(element => {
+            element.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add hover effects to installment sections
+        const installmentSections = document.querySelectorAll('.installment-section');
+        installmentSections.forEach(section => {
+            section.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 20px rgba(0, 255, 255, 0.1)';
+            });
+            
+            section.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Add click effects to buttons
+        const buttons = document.querySelectorAll('.btn-cancel, .btn-submit');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = event.clientX - rect.left - size / 2;
+                const y = event.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Add form validation feedback
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('.btn-submit');
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+                submitButton.disabled = true;
+            });
+        }
+        
+        // Add auto-calculation for total fee
+        const amountInputs = document.querySelectorAll('input[type="number"]');
+        const totalDisplay = document.createElement('div');
+        totalDisplay.className = 'total-fee-display';
+        totalDisplay.style.cssText = `
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+        `;
+        
+        function updateTotal() {
+            let total = 0;
+            amountInputs.forEach(input => {
+                if (input.value) {
+                    total += parseFloat(input.value) || 0;
+                }
+            });
+            
+            totalDisplay.innerHTML = `
+                <div style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 5px;">
+                    <i class="fas fa-calculator me-2"></i>Total Fee
+                </div>
+                <div style="font-size: 1.8rem; font-weight: 800; background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    ₹${total.toFixed(2)}
+                </div>
+            `;
+        }
+        
+        amountInputs.forEach(input => {
+            input.addEventListener('input', updateTotal);
+        });
+        
+        // Insert total display after the last installment section
+        const lastSection = document.querySelector('.installment-section:last-child');
+        lastSection.parentNode.insertBefore(totalDisplay, lastSection.nextSibling);
+        updateTotal();
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn-cancel, .btn-submit {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>
-
-

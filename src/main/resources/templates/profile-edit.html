@@ -4,100 +4,492 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Profile - Bus Pass Management</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
-            background-color: #f8f9fa;
+            background: var(--bg-primary);
             font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
         }
+        
+        .profile-container {
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
         .profile-card {
-            max-width: 600px;
-            margin: 2rem auto;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+            position: relative;
         }
+        
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
         .profile-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--primary-gradient);
             color: white;
-            border-radius: 1rem 1rem 0 0;
-            padding: 2rem;
+            padding: 40px 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .profile-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .profile-avatar {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.3);
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 1rem;
+            margin: 0 auto 20px;
+            font-size: 2.5rem;
+            position: relative;
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+        
+        .profile-avatar:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.2);
+        }
+        
+        .profile-title {
             font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .profile-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .profile-body {
+            padding: 40px 30px;
+        }
+        
+        .form-floating-futuristic {
+            position: relative;
+            margin-bottom: 25px;
+        }
+        
+        .form-floating-futuristic input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: var(--text-primary);
+            padding: 16px 14px 6px;
+            height: auto;
+            transition: all 0.3s ease;
+        }
+        
+        .form-floating-futuristic input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.2);
+            outline: none;
+        }
+        
+        .form-floating-futuristic input:read-only {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+        
+        .form-floating-futuristic label {
+            color: var(--text-secondary);
+            padding: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-floating-futuristic input:focus ~ label,
+        .form-floating-futuristic input:not(:placeholder-shown) ~ label {
+            color: var(--accent-cyan);
+            transform: translateY(-2px);
+        }
+        
+        .form-text {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .form-text i {
+            color: var(--accent-cyan);
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .btn-back {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+        
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+            color: var(--text-primary);
+        }
+        
+        .btn-save {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.2);
+        }
+        
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 255, 255, 0.3);
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .role-badge {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            .profile-title {
+                font-size: 1.6rem;
+            }
+            
+            .profile-header {
+                padding: 30px 20px;
+            }
+            
+            .profile-body {
+                padding: 30px 20px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-buttons > * {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="card profile-card">
-            <div class="profile-header">
-                <div class="profile-avatar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="currentColor" class="bi bi-person-fill" viewBox="0 0 16 16">
-                        <path d="M3 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-                    </svg>
-                </div>
-                <h3 class="mb-0">Edit Profile</h3>
-                <p class="mb-0 opacity-75">Update your personal information</p>
+
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
+
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
             </div>
+            <h3 class="profile-title">Edit Profile</h3>
+            <p class="profile-subtitle">Update your personal information</p>
+        </div>
+        
+        <div class="profile-body">
+            <!-- Success/Error Messages -->
+            <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+            <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
             
-            <div class="card-body p-4">
-                <!-- Success/Error Messages -->
-                <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-                <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+            <form th:action="@{/profile/edit}" method="post" th:object="${user}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating-futuristic">
+                            <input type="text" th:field="*{name}" class="form-control" id="name" placeholder="Full Name" required>
+                            <label for="name">
+                                <i class="fas fa-user me-2"></i>Full Name
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating-futuristic">
+                            <input type="email" th:field="*{email}" class="form-control" id="email" placeholder="Email Address" readonly>
+                            <label for="email">
+                                <i class="fas fa-envelope me-2"></i>Email Address
+                            </label>
+                        </div>
+                        <div class="form-text">
+                            <i class="fas fa-lock"></i>Email cannot be changed
+                        </div>
+                    </div>
+                </div>
                 
-                <form th:action="@{/profile/edit}" method="post" th:object="${user}">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="name" class="form-label">Full Name</label>
-                            <input type="text" th:field="*{name}" class="form-control" id="name" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="email" class="form-label">Email Address</label>
-                            <input type="email" th:field="*{email}" class="form-control" id="email" readonly>
-                            <div class="form-text">Email cannot be changed</div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-floating-futuristic">
+                            <input type="tel" th:field="*{phone}" class="form-control" id="phone" placeholder="Phone Number" pattern="[0-9]{10}" title="Enter a 10-digit phone number" required>
+                            <label for="phone">
+                                <i class="fas fa-phone me-2"></i>Phone Number
+                            </label>
                         </div>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="phone" class="form-label">Phone Number</label>
-                            <input type="tel" th:field="*{phone}" class="form-control" id="phone" pattern="[0-9]{10}" title="Enter a 10-digit phone number" required>
+                    <div class="col-md-6">
+                        <div class="form-floating-futuristic">
+                            <input type="text" th:value="*{role.name()}" class="form-control" id="role" placeholder="Role" readonly>
+                            <label for="role">
+                                <i class="fas fa-user-tag me-2"></i>Role
+                            </label>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="role" class="form-label">Role</label>
-                            <input type="text" th:value="*{role.name()}" class="form-control" id="role" readonly>
-                            <div class="form-text">Role cannot be changed</div>
+                        <div class="form-text">
+                            <i class="fas fa-lock"></i>Role cannot be changed
                         </div>
                     </div>
-                    
-                    <div class="d-flex justify-content-between mt-4">
-                        <a th:href="@{/}" class="btn btn-outline-secondary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-left me-1" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
-                            </svg>
-                            Back to Dashboard
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-lg me-1" viewBox="0 0 16 16">
-                                <path d="M12.736 3.97a.733.733 0 0 1 1.047 0c.286.289.29.756.01 1.05L7.88 12.01a.733.733 0 0 1-1.065.02L3.217 8.384a.757.757 0 0 1 0-1.06.733.733 0 0 1 1.047 0l3.052 3.093 5.4-6.425a.247.247 0 0 1 .02-.022Z"/>
-                            </svg>
-                            Save Changes
-                        </button>
-                    </div>
-                </form>
-            </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <a th:href="@{/}" class="btn-back">
+                        <i class="fas fa-arrow-left"></i>Back to Dashboard
+                    </a>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>Save Changes
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 12;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
+        }
+    }
     
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        
+        // Add entrance animation to profile card
+        const profileCard = document.querySelector('.profile-card');
+        profileCard.style.animation = 'slideInUp 0.8s ease-out';
+        
+        // Add hover effects to form inputs
+        const inputs = document.querySelectorAll('.form-floating-futuristic input');
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add click effect to save button
+        const saveButton = document.querySelector('.btn-save');
+        saveButton.addEventListener('click', function() {
+            // Create ripple effect
+            const ripple = document.createElement('span');
+            const rect = this.getBoundingClientRect();
+            const size = Math.max(rect.width, rect.height);
+            const x = event.clientX - rect.left - size / 2;
+            const y = event.clientY - rect.top - size / 2;
+            
+            ripple.style.width = ripple.style.height = size + 'px';
+            ripple.style.left = x + 'px';
+            ripple.style.top = y + 'px';
+            ripple.classList.add('ripple');
+            
+            this.appendChild(ripple);
+            
+            setTimeout(() => {
+                ripple.remove();
+            }, 600);
+        });
+        
+        // Add form validation feedback
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const nameInput = document.getElementById('name');
+            const phoneInput = document.getElementById('phone');
+            
+            if (!nameInput.value.trim()) {
+                e.preventDefault();
+                nameInput.style.borderColor = '#ff6b6b';
+                nameInput.focus();
+                return;
+            }
+            
+            if (!phoneInput.value.trim() || !/^\d{10}$/.test(phoneInput.value)) {
+                e.preventDefault();
+                phoneInput.style.borderColor = '#ff6b6b';
+                phoneInput.focus();
+                return;
+            }
+        });
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn-save {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>

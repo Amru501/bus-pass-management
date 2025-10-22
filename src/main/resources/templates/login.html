@@ -5,207 +5,420 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Login - Bus Pass Management</title>
+    
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
           rel="stylesheet" 
           crossorigin="anonymous">
-    <!-- Custom style -->
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
             position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         
-        #background-canvas {
+        .login-container {
+            width: 100%;
+            max-width: 380px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .login-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .brand-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .brand-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .form-floating-futuristic {
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .form-floating-futuristic input {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            color: #ffffff;
+            padding: 16px 14px 6px;
+            height: auto;
+            transition: all 0.3s ease;
+            padding-right: 50px; /* Add space for the toggle button */
+        }
+        
+        .form-floating-futuristic input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00ffff;
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.2);
+            outline: none;
+        }
+        
+        .form-floating-futuristic label {
+            color: #b8b8b8;
+            padding: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-floating-futuristic input:focus ~ label,
+        .form-floating-futuristic input:not(:placeholder-shown) ~ label {
+            color: #00ffff;
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .floating-elements {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            background-color: #1a1a2e; /* Dark blue background */
-        }
-
-        .login-card {
-            max-width: 400px;
-            width: 100%;
-            padding: 25px;
-            border-radius: 1rem;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
+            pointer-events: none;
             z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 8s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .social-login {
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .social-btn {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            color: #b8b8b8;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+        
+        .social-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00ffff;
+            color: #00ffff;
+            transform: translateY(-2px);
+        }
+        
+        /* Password Toggle Button */
+        .password-toggle-btn {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #b8b8b8;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            z-index: 10;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            top: calc(50% + 2px); /* Fine-tune vertical position */
+        }
+        
+        .password-toggle-btn:hover {
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.1);
+        }
+        
+        .password-toggle-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.3);
         }
     </style>
 </head>
 <body>
 
-<!-- Canvas for the background animation -->
-<canvas id="background-canvas"></canvas>
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
 
-<div class="card login-card shadow-lg border-0">
-    <div class="card-body">
-        <h3 class="card-title text-center mb-4 text-primary">Bus Pass Login</h3>
-        <p class="text-center text-muted mb-4">Sign in to access your dashboard.</p>
+<div class="login-container">
+    <div class="login-card">
+        <!-- Brand Section -->
+        <div class="brand-section">
+            <div class="brand-icon">
+                <i class="fas fa-bus"></i>
+            </div>
+            <h2 class="text-gradient mb-2">BusPass Pro</h2>
+            <p class="text-secondary">Sign in to access your dashboard</p>
+        </div>
 
         <!-- Display Messages -->
-        <div th:if="${param.logout}" class="alert alert-success">You have been logged out.</div>
-        <div th:if="${param.error}" class="alert alert-danger">Invalid username or password.</div>
-        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${param.logout}" class="alert alert-success-futuristic">
+            <i class="fas fa-check-circle me-2"></i>You have been logged out successfully.
+        </div>
+        <div th:if="${param.error}" class="alert alert-danger-futuristic">
+            <i class="fas fa-exclamation-triangle me-2"></i>Invalid username or password.
+        </div>
+        <div th:if="${successMessage}" class="alert alert-success-futuristic" th:text="${successMessage}"></div>
 
         <!-- Login Form -->
         <form method="post" th:action="@{/login}">
-            <div class="mb-3">
-                <label for="username" class="form-label">Email (Username)</label>
-                <input type="email" class="form-control" id="username" name="username" placeholder="name@example.com" required>
+            <div class="form-floating-futuristic">
+                <input type="email" class="form-control" id="username" name="username" 
+                       placeholder="name@example.com" required>
+                <label for="username">
+                    <i class="fas fa-envelope me-2"></i>Email Address
+                </label>
             </div>
-            <div class="mb-4">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
+            
+            <div class="form-floating-futuristic">
+                <input type="password" class="form-control" id="password" name="password" 
+                       placeholder="••••••••" required>
+                <label for="password">
+                    <i class="fas fa-lock me-2"></i>Password
+                </label>
+                <button type="button" class="password-toggle-btn" onclick="togglePassword('password')">
+                    <i class="fas fa-eye" id="password-eye"></i>
+                </button>
             </div>
+            
             <div class="d-grid mb-3">
-                <button type="submit" class="btn btn-primary btn-lg shadow-sm">Log In</button>
+                <button type="submit" class="btn btn-futuristic login-btn">
+                    <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                </button>
             </div>
+            
             <div class="text-center mb-3">
-                <a th:href="@{/forgot-password}" class="text-decoration-none">Forgot password?</a>
-            </div>
-            <div class="text-center mt-3">
-                <p class="text-muted mb-0">Don't have an account? <a th:href="@{/register}" class="text-decoration-none">Register here</a></p>
+                <a th:href="@{/forgot-password}" class="text-decoration-none" style="color: #00ffff;">
+                    <i class="fas fa-key me-1"></i>Forgot password?
+                </a>
             </div>
         </form>
+        
+        <!-- Social Login Section -->
+        <div class="social-login">
+            <p class="text-center text-white mb-3">Or continue with</p>
+            <button class="social-btn">
+                <i class="fab fa-google me-2"></i>Google
+            </button>
+            <button class="social-btn">
+                <i class="fab fa-microsoft me-2"></i>Microsoft
+            </button>
+        </div>
+        
+        <!-- Register Link -->
+        <div class="text-center mt-3">
+            <p class="text-white mb-0">
+                Don't have an account? 
+                <a th:href="@{/register}" class="text-decoration-none fw-semibold" style="color: #00ffff;">
+                    Register here
+                </a>
+            </p>
+        </div>
+        
+        <!-- Footer Info -->
+        <div class="text-center mt-3 pt-2" style="border-top: 1px solid rgba(255, 255, 255, 0.1);">
+            <small class="text-white-50">
+                <i class="fas fa-shield-alt me-1"></i>
+                Access is granted based on your role
+            </small>
     </div>
-    <div class="card-footer text-muted text-center border-0 bg-transparent">
-        <p class="small mb-0">* Access is granted based on your role.</p>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-<!-- JavaScript for the animated route map -->
 <script>
-    const canvas = document.getElementById('background-canvas');
-    const ctx = canvas.getContext('2d');
-
-    let width, height;
-    const dots = [];
-    const buses = [];
-    const dotCount = 200;
-    const busCount = 10;
-    const routes = [
-        [{x: 0.1, y: 0.2}, {x: 0.4, y: 0.8}, {x: 0.9, y: 0.3}],
-        [{x: 0.8, y: 0.1}, {x: 0.2, y: 0.5}, {x: 0.8, y: 0.9}],
-        [{x: 0.2, y: 0.9}, {x: 0.9, y: 0.6}, {x: 0.1, y: 0.1}]
-    ];
-
-    function resizeCanvas() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-    }
-
-    class Dot {
-        constructor() {
-            this.x = Math.random() * width;
-            this.y = Math.random() * height;
-            this.radius = Math.random() * 1.5;
-            this.alpha = Math.random() * 0.5 + 0.2;
-        }
-
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
-            ctx.fill();
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 15;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 8 + 's';
+            element.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            container.appendChild(element);
         }
     }
     
-    class Bus {
-        constructor() {
-            this.route = routes[Math.floor(Math.random() * routes.length)];
-            this.segment = 0;
-            this.progress = Math.random();
-            this.speed = Math.random() * 0.002 + 0.001;
-        }
-
-        update() {
-            this.progress += this.speed;
-            if (this.progress >= 1) {
-                this.progress = 0;
-                this.segment = (this.segment + 1) % this.route.length;
-            }
-        }
-
-        draw() {
-            const start = this.route[this.segment];
-            const end = this.route[(this.segment + 1) % this.route.length];
-            
-            const currentX = (start.x + (end.x - start.x) * this.progress) * width;
-            const currentY = (start.y + (end.y - start.y) * this.progress) * height;
-
-            ctx.beginPath();
-            ctx.arc(currentX, currentY, 3, 0, Math.PI * 2);
-            ctx.fillStyle = '#0d6efd';
-            ctx.shadowColor = '#0d6efd';
-            ctx.shadowBlur = 10;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-        }
-    }
-
-    function init() {
-        for (let i = 0; i < dotCount; i++) {
-            dots.push(new Dot());
-        }
-        for (let i = 0; i < busCount; i++) {
-            buses.push(new Bus());
-        }
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, width, height);
-
-        // Draw static grid dots
-        dots.forEach(dot => dot.draw());
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
         
-        // Draw routes
-        ctx.strokeStyle = 'rgba(13, 110, 253, 0.2)';
-        ctx.lineWidth = 1;
-        routes.forEach(route => {
-            ctx.beginPath();
-            ctx.moveTo(route[0].x * width, route[0].y * height);
-            for(let i = 1; i < route.length; i++) {
-                ctx.lineTo(route[i].x * width, route[i].y * height);
-            }
-            ctx.closePath();
-            ctx.stroke();
+        // Add form validation styling
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                if (this.value.trim() !== '') {
+                    this.classList.add('has-value');
+                } else {
+                    this.classList.remove('has-value');
+                }
+            });
         });
-
-        // Update and draw buses
-        buses.forEach(bus => {
-            bus.update();
-            bus.draw();
+        
+        // Add loading state to login button
+        const loginForm = document.querySelector('form');
+        loginForm.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Signing In...';
+            submitBtn.disabled = true;
+            
+            // Re-enable after 5 seconds (in case of error)
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }, 5000);
         });
-
-        requestAnimationFrame(animate);
-    }
-
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-        dots.length = 0;
-        buses.length = 0;
-        init();
+        
+        // Add focus effects
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.classList.remove('focused');
+            });
+        });
     });
-
-    resizeCanvas();
-    init();
-    animate();
+    
+    // Add CSS for form states
+    const style = document.createElement('style');
+    style.textContent = `
+        .form-floating-futuristic.focused input {
+            transform: scale(1.02);
+        }
+        
+        .form-floating-futuristic input.has-value ~ label {
+            color: var(--accent-cyan);
+            transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+        }
+        
+        .login-card {
+            animation: slideInUp 0.6s ease-out;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    // Password toggle functionality
+    function togglePassword(fieldId) {
+        const passwordField = document.getElementById(fieldId);
+        const eyeIcon = document.getElementById(fieldId + '-eye');
+        
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            eyeIcon.classList.remove('fa-eye');
+            eyeIcon.classList.add('fa-eye-slash');
+        } else {
+            passwordField.type = 'password';
+            eyeIcon.classList.remove('fa-eye-slash');
+            eyeIcon.classList.add('fa-eye');
+        }
+    }
 </script>
 
 </body>
 </html>
-

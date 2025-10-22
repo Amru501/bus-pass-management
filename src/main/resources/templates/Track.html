@@ -4,94 +4,632 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Live Bus Tracking</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body, html {
             height: 100%;
             margin: 0;
             font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            overflow: hidden;
         }
-        .main-container {
+        
+        .tracking-container {
             display: flex;
             height: 100vh;
+            position: relative;
         }
+        
         .sidebar {
-            width: 350px;
-            background-color: #f8f9fa;
-            padding: 20px;
+            width: 400px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--glass-border);
+            padding: 30px;
             overflow-y: auto;
-            border-right: 1px solid #dee2e6;
+            position: relative;
+            z-index: 10;
         }
+        
+        .sidebar-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+        
+        .sidebar-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .bus-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .bus-item {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all var(--transition-medium);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bus-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform var(--transition-medium);
+        }
+        
+        .bus-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .bus-item:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .bus-item.active {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+        }
+        
+        .bus-item.active::before {
+            transform: scaleX(1);
+            background: var(--accent-cyan);
+        }
+        
+        .bus-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .bus-number {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 5px;
+        }
+        
+        .bus-time {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.1);
+            padding: 4px 8px;
+            border-radius: 8px;
+        }
+        
+        .bus-route {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+        
+        .bus-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-on-time {
+            background: var(--accent-cyan);
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+        
+        .status-delayed {
+            background: #ff6b6b;
+            box-shadow: 0 0 10px #ff6b6b;
+        }
+        
+        .status-text {
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .status-on-time-text {
+            color: var(--accent-cyan);
+        }
+        
+        .status-delayed-text {
+            color: #ff6b6b;
+        }
+        
         .map-container {
             flex-grow: 1;
-            background-color: #e9ecef;
+            background: var(--bg-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
+            overflow: hidden;
         }
-        .bus-item {
-            cursor: pointer;
+        
+        .map-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 15s ease-in-out infinite;
         }
-        .bus-item.active {
-            background-color: #d1ecf1 !important;
-            border-color: #bee5eb !important;
+        
+        @keyframes backgroundShift {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
         }
+        
         .map-placeholder {
             text-align: center;
-            color: #6c757d;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+            padding: 40px;
         }
-        .map-placeholder img {
-            max-width: 100%;
-            border-radius: 8px;
+        
+        .map-icon {
+            width: 120px;
+            height: 120px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            font-size: 48px;
+            color: white;
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .map-title {
+            font-size: 2rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+        
+        .map-description {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 30px;
+        }
+        
+        .tracking-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all var(--transition-medium);
+        }
+        
+        .feature-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            width: 50px;
+            height: 50px;
+            background: var(--primary-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 20px;
+            color: white;
+        }
+        
+        .feature-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .feature-description {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .floating-particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatParticle 8s linear infinite;
+        }
+        
+        @keyframes floatParticle {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .back-button {
+            margin-bottom: 20px;
+        }
+        
+        .stats-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
         }
     </style>
 </head>
 <body>
 
-<div class="main-container">
+<div class="tracking-container">
+    <!-- Floating Particles -->
+    <div class="floating-particles" id="floatingParticles"></div>
+    
+    <!-- Sidebar -->
     <div class="sidebar">
-        <a th:href="@{/}" class="btn btn-secondary mb-4 w-100">← Back to Dashboard</a>
-        <h4 class="mb-3">Active Buses</h4>
-        <div class="list-group">
-            <!-- Placeholder for bus list -->
-            <div class="list-group-item list-group-item-action bus-item active" aria-current="true">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Bus MH-12-AB-3456</h5>
-                    <small>3 min ago</small>
+        <div class="back-button">
+            <a th:href="@{/}" class="btn btn-futuristic btn-secondary-futuristic w-100">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
+        </div>
+        
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">
+                <i class="fas fa-satellite-dish me-2"></i>Live Tracking
+            </h2>
+            <p class="sidebar-subtitle">Real-time bus locations and status updates</p>
+        </div>
+        
+        <div class="bus-list">
+            <div class="bus-item active" aria-current="true">
+                <div class="bus-header">
+                    <div class="bus-number">Bus MH-12-AB-3456</div>
+                    <div class="bus-time">3 min ago</div>
                 </div>
-                <p class="mb-1">Route: Campus to Downtown</p>
-                <small class="text-success">Status: On Time</small>
+                <div class="bus-route">
+                    <i class="fas fa-route me-2"></i>Route: Campus to Downtown
+                </div>
+                <div class="bus-status">
+                    <div class="status-indicator status-on-time"></div>
+                    <span class="status-text status-on-time-text">On Time</span>
+                </div>
             </div>
-            <div class="list-group-item list-group-item-action bus-item">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Bus KL-08-C-9876</h5>
-                    <small>5 min ago</small>
+            
+            <div class="bus-item">
+                <div class="bus-header">
+                    <div class="bus-number">Bus KL-08-C-9876</div>
+                    <div class="bus-time">5 min ago</div>
                 </div>
-                <p class="mb-1">Route: North Suburbs Loop</p>
-                <small class="text-danger">Status: 10 min Delay</small>
+                <div class="bus-route">
+                    <i class="fas fa-route me-2"></i>Route: North Suburbs Loop
+                </div>
+                <div class="bus-status">
+                    <div class="status-indicator status-delayed"></div>
+                    <span class="status-text status-delayed-text">10 min Delay</span>
+                </div>
             </div>
-            <div class="list-group-item list-group-item-action bus-item">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">Bus TN-01-X-5555</h5>
-                    <small>1 min ago</small>
+            
+            <div class="bus-item">
+                <div class="bus-header">
+                    <div class="bus-number">Bus TN-01-X-5555</div>
+                    <div class="bus-time">1 min ago</div>
                 </div>
-                <p class="mb-1">Route: Express to Tech Park</p>
-                <small class="text-success">Status: On Time</small>
+                <div class="bus-route">
+                    <i class="fas fa-route me-2"></i>Route: Express to Tech Park
+                </div>
+                <div class="bus-status">
+                    <div class="status-indicator status-on-time"></div>
+                    <span class="status-text status-on-time-text">On Time</span>
+                </div>
+            </div>
+            
+            <div class="bus-item">
+                <div class="bus-header">
+                    <div class="bus-number">Bus KA-05-Y-7777</div>
+                    <div class="bus-time">2 min ago</div>
+                </div>
+                <div class="bus-route">
+                    <i class="fas fa-route me-2"></i>Route: South Campus Express
+                </div>
+                <div class="bus-status">
+                    <div class="status-indicator status-on-time"></div>
+                    <span class="status-text status-on-time-text">On Time</span>
+                </div>
             </div>
         </div>
-        <p class="mt-4 text-muted small">
-            This is a demonstration page. Live tracking functionality is not yet implemented.
-        </p>
+        
+        <!-- Stats Section -->
+        <div class="stats-section">
+            <h5 class="text-white mb-3">
+                <i class="fas fa-chart-line me-2"></i>Live Statistics
+            </h5>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">12</div>
+                    <div class="stat-label">Active Buses</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">On Time</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">3</div>
+                    <div class="stat-label">Delayed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">1</div>
+                    <div class="stat-label">Maintenance</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-4 p-3" style="background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
+            <p class="text-muted small mb-0">
+                <i class="fas fa-info-circle me-2"></i>
+                This is a demonstration page. Live tracking functionality will be implemented with GPS integration.
+            </p>
+        </div>
     </div>
+    
+    <!-- Map Container -->
     <div class="map-container">
         <div class="map-placeholder">
+            <div class="map-icon">
+                <i class="fas fa-map-marked-alt"></i>
+            </div>
+            <h3 class="map-title">Interactive Map View</h3>
+            <p class="map-description">Real-time bus locations will appear here with GPS tracking</p>
             
-            <h3 class="mt-3">Live Map View</h3>
-            <p>Bus locations will appear here in real-time.</p>
+            <div class="tracking-features">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-satellite"></i>
+                    </div>
+                    <div class="feature-title">GPS Tracking</div>
+                    <div class="feature-description">Real-time location updates</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="feature-title">ETA Updates</div>
+                    <div class="feature-description">Accurate arrival times</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <div class="feature-title">Alerts</div>
+                    <div class="feature-description">Delay notifications</div>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-route"></i>
+                    </div>
+                    <div class="feature-title">Route Planning</div>
+                    <div class="feature-description">Optimized paths</div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Create floating particles
+    function createFloatingParticles() {
+        const container = document.getElementById('floatingParticles');
+        const particleCount = 20;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 8 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 6) + 's';
+            container.appendChild(particle);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingParticles();
+        
+        // Add click functionality to bus items
+        const busItems = document.querySelectorAll('.bus-item');
+        busItems.forEach(item => {
+            item.addEventListener('click', function() {
+                // Remove active class from all items
+                busItems.forEach(bus => bus.classList.remove('active'));
+                // Add active class to clicked item
+                this.classList.add('active');
+                
+                // Add click animation
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 150);
+            });
+        });
+        
+        // Add hover effects to feature cards
+        const featureCards = document.querySelectorAll('.feature-card');
+        featureCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Simulate real-time updates
+        setInterval(() => {
+            const timeElements = document.querySelectorAll('.bus-time');
+            timeElements.forEach(timeEl => {
+                const currentTime = timeEl.textContent;
+                const minutes = parseInt(currentTime.split(' ')[0]);
+                if (minutes < 10) {
+                    timeEl.textContent = `${minutes + 1} min ago`;
+                } else {
+                    timeEl.textContent = '1 min ago';
+                }
+            });
+        }, 30000); // Update every 30 seconds
+        
+        // Add entrance animations
+        const sidebar = document.querySelector('.sidebar');
+        const mapContainer = document.querySelector('.map-container');
+        
+        sidebar.style.animation = 'slideInLeft 0.6s ease-out';
+        mapContainer.style.animation = 'slideInRight 0.6s ease-out';
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
 
 </body>
 </html>

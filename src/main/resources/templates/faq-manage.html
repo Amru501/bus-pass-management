@@ -4,155 +4,868 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage FAQs - Admin</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
-            background-color: #f8f9fa;
+            background: var(--bg-primary);
             font-family: 'Inter', sans-serif;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
         }
-        .admin-header {
-            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        
+        .faq-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .section-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+        }
+        
+        .section-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+        
+        .section-header {
+            background: var(--primary-gradient);
             color: white;
-            padding: 2rem 1.5rem;
-            margin-bottom: 2rem;
-            border-radius: 0.5rem;
+            padding: 20px 25px;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .section-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 15s linear infinite reverse;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-body {
+            padding: 25px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            padding: 12px 16px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+            outline: none;
+        }
+        
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .form-text {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-top: 5px;
+        }
+        
+        .submit-button {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 12px 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.2);
+        }
+        
+        .submit-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 255, 255, 0.3);
+        }
+        
+        .submit-button:hover::before {
+            left: 100%;
+        }
+        
         .faq-item {
-            border: 1px solid #dee2e6;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
+        
+        .faq-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .faq-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.1);
+        }
+        
+        .faq-item:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .faq-display {
+            position: relative;
+        }
+        
+        .faq-question {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .faq-answer {
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .faq-order {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .faq-actions {
+            position: absolute;
+            top: 0;
+            right: 0;
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-action {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            text-decoration: none;
+        }
+        
+        .btn-edit {
+            background: var(--warning-gradient);
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: var(--warning-gradient);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        }
+        
+        .btn-delete {
+            background: var(--danger-gradient);
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: var(--danger-gradient);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+        
         .edit-form {
             display: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+            border: 1px solid var(--glass-border);
         }
+        
         .edit-form.show {
             display: block;
+            animation: slideDown 0.3s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .edit-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .btn-save {
+            background: var(--success-gradient);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-save:hover {
+            background: var(--success-gradient);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+        }
+        
+        .btn-cancel {
+            background: var(--secondary-gradient);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-cancel:hover {
+            background: var(--secondary-gradient);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+        
+        .empty-state {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .empty-state::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .empty-description {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+        
+        .alert {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .alert-success {
+            border-color: var(--accent-green);
+            background: rgba(79, 172, 254, 0.1);
+        }
+        
+        .alert-success::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-green);
+        }
+        
+        .alert-danger {
+            border-color: var(--accent-danger);
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .alert-danger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-danger);
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-buttons > div {
+                width: 100%;
+            }
+            
+            .faq-actions {
+                position: static;
+                margin-top: 15px;
+                justify-content: flex-end;
+            }
+            
+            .edit-actions {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container my-5">
-        
-        <div class="admin-header text-center">
-            <h1 class="display-6 fw-bold">Manage FAQs</h1>
-            <p class="lead mb-0">Add, edit, or delete frequently asked questions</p>
+
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
+
+<div class="faq-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-question-circle me-3"></i>Manage FAQs
+        </h1>
+        <p class="page-subtitle">Add, edit, or delete frequently asked questions</p>
+    </div>
+
+    <div class="action-buttons">
+        <div>
+            <a th:href="@{/faq}" class="btn btn-futuristic btn-secondary-futuristic">
+                <i class="fas fa-arrow-left me-2"></i>Back to FAQs
+            </a>
         </div>
-
-        <div class="d-flex justify-content-between mb-4">
-            <div>
-                <a th:href="@{/faq}" class="btn btn-outline-secondary">← Back to FAQs</a>
-            </div>
-            <div>
-                <a th:href="@{/}" class="btn btn-outline-primary">Dashboard</a>
-            </div>
+        <div>
+            <a th:href="@{/}" class="btn btn-futuristic btn-outline-futuristic">
+                <i class="fas fa-home me-2"></i>Dashboard
+            </a>
         </div>
+    </div>
 
-        <!-- Success/Error Messages -->
-        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
-        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+    <!-- Success/Error Messages -->
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${successMessage}"></span>
+    </div>
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${errorMessage}"></span>
+    </div>
 
-        <!-- Add New FAQ Form -->
-        <div class="card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">Add New FAQ</h5>
-            </div>
-            <div class="card-body">
-                <form th:action="@{/faq/add}" th:object="${newFaq}" method="post">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="question" class="form-label">Question</label>
-                            <input type="text" th:field="*{question}" class="form-control" id="question" required>
+    <!-- Add New FAQ Form -->
+    <div class="section-card">
+        <div class="section-header">
+            <h5 class="section-title">
+                <i class="fas fa-plus"></i>Add New FAQ
+            </h5>
+        </div>
+        <div class="section-body">
+            <form th:action="@{/faq/add}" th:object="${newFaq}" method="post">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="question" class="form-label">
+                                <i class="fas fa-question"></i>Question
+                            </label>
+                            <input type="text" th:field="*{question}" class="form-control" id="question" 
+                                   placeholder="Enter the question..." required>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="displayOrder" class="form-label">Display Order</label>
-                            <input type="number" th:field="*{displayOrder}" class="form-control" id="displayOrder" min="1">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="displayOrder" class="form-label">
+                                <i class="fas fa-sort-numeric-down"></i>Display Order
+                            </label>
+                            <input type="number" th:field="*{displayOrder}" class="form-control" id="displayOrder" 
+                                   min="1" placeholder="1">
                             <div class="form-text">Lower numbers appear first (optional)</div>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="answer" class="form-label">Answer</label>
-                        <textarea th:field="*{answer}" class="form-control" id="answer" rows="4" required></textarea>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Add FAQ</button>
-                </form>
-            </div>
+                </div>
+                <div class="form-group">
+                    <label for="answer" class="form-label">
+                        <i class="fas fa-comment-dots"></i>Answer
+                    </label>
+                    <textarea th:field="*{answer}" class="form-control" id="answer" rows="4" 
+                              placeholder="Enter the answer..." required></textarea>
+                </div>
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-plus me-2"></i>Add FAQ
+                </button>
+            </form>
         </div>
+    </div>
 
-        <!-- Existing FAQs -->
-        <div class="card">
-            <div class="card-header bg-secondary text-white">
-                <h5 class="mb-0">Existing FAQs</h5>
+    <!-- Existing FAQs -->
+    <div class="section-card">
+        <div class="section-header">
+            <h5 class="section-title">
+                <i class="fas fa-list"></i>Existing FAQs
+            </h5>
+        </div>
+        <div class="section-body">
+            <div th:if="${#lists.isEmpty(faqs)}" class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-question-circle"></i>
+                </div>
+                <h3 class="empty-title">No FAQs Found</h3>
+                <p class="empty-description">Start by adding your first FAQ above to help students with common questions.</p>
             </div>
-            <div class="card-body">
-                <div th:if="${#lists.isEmpty(faqs)}" class="text-center py-4">
-                    <p class="text-muted">No FAQs found. Add your first FAQ above.</p>
+            
+            <div th:each="faq : ${faqs}" class="faq-item">
+                <div class="faq-display">
+                    <div class="faq-actions">
+                        <button type="button" class="btn-action btn-edit" 
+                                th:onclick="'toggleEdit(' + ${faq.id} + ')'">
+                            <i class="fas fa-edit"></i>Edit
+                        </button>
+                        <form th:action="@{/faq/delete/{id}(id=${faq.id})}" method="post" class="d-inline"
+                              th:onclick="'return confirm(\'Are you sure you want to delete this FAQ?\')'">
+                            <button type="submit" class="btn-action btn-delete">
+                                <i class="fas fa-trash"></i>Delete
+                            </button>
+                        </form>
+                    </div>
+                    <h6 class="faq-question">
+                        <i class="fas fa-question-circle"></i>
+                        <span th:text="${faq.question}">Question</span>
+                    </h6>
+                    <p class="faq-answer" th:text="${faq.answer}">Answer</p>
+                    <div class="faq-order">
+                        <i class="fas fa-sort-numeric-down"></i>
+                        Order: <span th:text="${faq.displayOrder}">1</span>
+                    </div>
                 </div>
                 
-                <div th:each="faq : ${faqs}" class="faq-item p-3">
-                    <div class="faq-display">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h6 class="mb-1 fw-bold" th:text="${faq.question}">Question</h6>
-                            <div>
-                                <button type="button" class="btn btn-sm btn-outline-primary me-1" 
-                                        th:onclick="'toggleEdit(' + ${faq.id} + ')'">Edit</button>
-                                <form th:action="@{/faq/delete/{id}(id=${faq.id})}" method="post" class="d-inline"
-                                      th:onclick="'return confirm(\'Are you sure you want to delete this FAQ?\')'">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                                </form>
-                            </div>
-                        </div>
-                        <p class="mb-2 text-muted" th:text="${faq.answer}">Answer</p>
-                        <small class="text-muted">Order: <span th:text="${faq.displayOrder}">1</span></small>
-                    </div>
-                    
-                    <!-- Edit Form (Hidden by default) -->
-                    <div th:id="'edit-form-' + ${faq.id}" class="edit-form mt-3">
-                        <form th:action="@{/faq/edit/{id}(id=${faq.id})}" method="post">
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Question</label>
+                <!-- Edit Form (Hidden by default) -->
+                <div th:id="'edit-form-' + ${faq.id}" class="edit-form">
+                    <form th:action="@{/faq/edit/{id}(id=${faq.id})}" method="post">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-question"></i>Question
+                                    </label>
                                     <input type="text" name="question" class="form-control" th:value="${faq.question}" required>
                                 </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Display Order</label>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">
+                                        <i class="fas fa-sort-numeric-down"></i>Display Order
+                                    </label>
                                     <input type="number" name="displayOrder" class="form-control" th:value="${faq.displayOrder}" min="1">
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Answer</label>
-                                <textarea name="answer" class="form-control" rows="3" required th:text="${faq.answer}"></textarea>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button type="submit" class="btn btn-success btn-sm">Save Changes</button>
-                                <button type="button" class="btn btn-secondary btn-sm" 
-                                        th:onclick="'toggleEdit(' + ${faq.id} + ')'">Cancel</button>
-                            </div>
-                        </form>
-                    </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-comment-dots"></i>Answer
+                            </label>
+                            <textarea name="answer" class="form-control" rows="3" required th:text="${faq.answer}"></textarea>
+                        </div>
+                        <div class="edit-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                            <button type="button" class="btn-cancel" 
+                                    th:onclick="'toggleEdit(' + ${faq.id} + ')'">
+                                <i class="fas fa-times me-2"></i>Cancel
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function toggleEdit(faqId) {
-            const editForm = document.getElementById('edit-form-' + faqId);
-            if (editForm.classList.contains('show')) {
-                editForm.classList.remove('show');
-            } else {
-                // Hide all other edit forms first
-                document.querySelectorAll('.edit-form.show').forEach(form => {
-                    form.classList.remove('show');
-                });
-                editForm.classList.add('show');
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function toggleEdit(faqId) {
+        const editForm = document.getElementById('edit-form-' + faqId);
+        if (editForm.classList.contains('show')) {
+            editForm.classList.remove('show');
+        } else {
+            // Hide all other edit forms first
+            document.querySelectorAll('.edit-form.show').forEach(form => {
+                form.classList.remove('show');
+            });
+            editForm.classList.add('show');
+        }
+    }
+    
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 12;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        
+        // Add entrance animation to cards
+        const cards = document.querySelectorAll('.section-card, .empty-state');
+        cards.forEach((card, index) => {
+            card.style.animation = `slideInUp 0.6s ease-out ${index * 0.1}s both`;
+        });
+        
+        // Add hover effects to FAQ items
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 20px rgba(0, 255, 255, 0.1)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Add click effects to action buttons
+        const actionButtons = document.querySelectorAll('.btn-action, .submit-button, .btn-save, .btn-cancel');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = event.clientX - rect.left - size / 2;
+                const y = event.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Add hover effects to main action buttons
+        const mainButtons = document.querySelectorAll('.action-buttons .btn');
+        mainButtons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 20px rgba(0, 255, 255, 0.2)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
             }
         }
-    </script>
+        
+        .btn-action, .submit-button, .btn-save, .btn-cancel {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .btn-futuristic {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-futuristic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-futuristic:hover::before {
+            left: 100%;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>

@@ -4,87 +4,682 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Route Installments</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
+            background: var(--bg-primary);
             font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .installments-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .page-header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .page-header::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .page-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .page-subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            position: relative;
+            z-index: 2;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .installments-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+        }
+        
+        .installments-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+        }
+        
+        .card-body {
+            padding: 30px;
+        }
+        
+        .empty-state {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 40px;
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .empty-state::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--primary-gradient);
+        }
+        
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+        }
+        
+        .empty-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+        
+        .empty-description {
+            color: var(--text-secondary);
+            margin-bottom: 25px;
+        }
+        
+        .installments-table {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--glass-border);
+        }
+        
+        .table {
+            margin: 0;
+            color: var(--text-primary);
+        }
+        
+        .table thead th {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 20px 15px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+        }
+        
+        .table thead th::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .table tbody tr {
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .table tbody tr:hover {
+            background: rgba(255, 255, 255, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.1);
+        }
+        
+        .table tbody tr:last-child {
+            border-bottom: none;
+        }
+        
+        .table tbody td {
+            padding: 20px 15px;
+            border: none;
+            vertical-align: middle;
+        }
+        
+        .route-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .installment-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        
+        .installment-amount {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+        }
+        
+        .installment-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .total-fee {
+            font-size: 1.2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .action-buttons-cell {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .btn-action {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+        
+        .btn-edit {
+            background: var(--warning-gradient);
+            color: white;
+        }
+        
+        .btn-edit:hover {
+            background: var(--warning-gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 193, 7, 0.3);
+        }
+        
+        .btn-delete {
+            background: var(--danger-gradient);
+            color: white;
+        }
+        
+        .btn-delete:hover {
+            background: var(--danger-gradient);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .alert {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .alert-success {
+            border-color: var(--accent-green);
+            background: rgba(79, 172, 254, 0.1);
+        }
+        
+        .alert-success::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-green);
+        }
+        
+        .alert-danger {
+            border-color: var(--accent-danger);
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .alert-danger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-danger);
+        }
+        
+        .alert-info {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 255, 255, 0.1);
+        }
+        
+        .alert-info::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-cyan);
+        }
+        
+        .alert .btn-close {
+            filter: invert(1);
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 1.8rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .action-buttons > div {
+                width: 100%;
+            }
+            
+            .table-responsive {
+                border-radius: 12px;
+            }
+            
+            .action-buttons-cell {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Manage Route Installments</h2>
-            <div>
-                <a th:href="@{/route-installments/add}" class="btn btn-primary">Add New Route Installment</a>
-                <a th:href="@{/}" class="btn btn-secondary">Back to Dashboard</a>
-            </div>
-        </div>
 
-        <!-- Success/Error Messages -->
-        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <span th:text="${success}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <span th:text="${error}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
 
-        <!-- Route Installments Table -->
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <div th:if="${#lists.isEmpty(installments)}" class="alert alert-info">
-                    No route installments configured yet. Click "Add New Route Installment" to get started.
-                </div>
+<div class="installments-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-route me-3"></i>Manage Route Installments
+        </h1>
+        <p class="page-subtitle">Configure payment schedules for different bus routes</p>
+    </div>
 
-                <div th:if="${!#lists.isEmpty(installments)}" class="table-responsive">
-                    <table class="table table-striped table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Route Name</th>
-                                <th>Installment 1</th>
-                                <th>Installment 2</th>
-                                <th>Installment 3</th>
-                                <th>Total Fee</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="installment : ${installments}">
-                                <td><strong th:text="${installment.routeName}"></strong></td>
-                                <td>
-                                    <div>₹<span th:text="${installment.installment1Amount}"></span></div>
-                                    <small class="text-muted">Due: <span th:text="${#temporals.format(installment.installment1Deadline, 'dd/MM/yyyy')}"></span></small>
-                                </td>
-                                <td>
-                                    <div>₹<span th:text="${installment.installment2Amount}"></span></div>
-                                    <small class="text-muted">Due: <span th:text="${#temporals.format(installment.installment2Deadline, 'dd/MM/yyyy')}"></span></small>
-                                </td>
-                                <td>
-                                    <div>₹<span th:text="${installment.installment3Amount}"></span></div>
-                                    <small class="text-muted">Due: <span th:text="${#temporals.format(installment.installment3Deadline, 'dd/MM/yyyy')}"></span></small>
-                                </td>
-                                <td><strong>₹<span th:text="${installment.totalFee}"></span></strong></td>
-                                <td>
-                                    <a th:href="@{/route-installments/edit/{id}(id=${installment.id})}" class="btn btn-sm btn-warning">Edit</a>
-                                    <form th:action="@{/route-installments/delete/{id}(id=${installment.id})}" method="post" style="display:inline;" 
-                                          onsubmit="return confirm('Are you sure you want to delete this route installment configuration?');">
-                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+    <div class="action-buttons">
+        <div>
+            <a th:href="@{/route-installments/add}" class="btn btn-futuristic btn-primary-futuristic">
+                <i class="fas fa-plus me-2"></i>Add New Route Installment
+            </a>
+        </div>
+        <div>
+            <a th:href="@{/}" class="btn btn-futuristic btn-secondary-futuristic">
+                <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+            </a>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Success/Error Messages -->
+    <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Route Installments Table -->
+    <div class="installments-card">
+        <div class="card-body">
+            <div th:if="${#lists.isEmpty(installments)}" class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-route"></i>
+                </div>
+                <h3 class="empty-title">No Route Installments Configured</h3>
+                <p class="empty-description">Start by adding your first route installment configuration to manage payment schedules.</p>
+                <a th:href="@{/route-installments/add}" class="btn btn-futuristic btn-primary-futuristic">
+                    <i class="fas fa-plus me-2"></i>Add First Route Installment
+                </a>
+            </div>
+
+            <div th:if="${!#lists.isEmpty(installments)}" class="table-responsive">
+                <table class="table installments-table">
+                    <thead>
+                        <tr>
+                            <th><i class="fas fa-route me-2"></i>Route Name</th>
+                            <th><i class="fas fa-1 me-2"></i>Installment 1</th>
+                            <th><i class="fas fa-2 me-2"></i>Installment 2</th>
+                            <th><i class="fas fa-3 me-2"></i>Installment 3</th>
+                            <th><i class="fas fa-calculator me-2"></i>Total Fee</th>
+                            <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="installment : ${installments}">
+                            <td>
+                                <div class="route-name">
+                                    <i class="fas fa-bus"></i>
+                                    <span th:text="${installment.routeName}"></span>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="installment-info">
+                                    <div class="installment-amount">₹<span th:text="${installment.installment1Amount}"></span></div>
+                                    <div class="installment-date">Due: <span th:text="${#temporals.format(installment.installment1Deadline, 'dd/MM/yyyy')}"></span></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="installment-info">
+                                    <div class="installment-amount">₹<span th:text="${installment.installment2Amount}"></span></div>
+                                    <div class="installment-date">Due: <span th:text="${#temporals.format(installment.installment2Deadline, 'dd/MM/yyyy')}"></span></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="installment-info">
+                                    <div class="installment-amount">₹<span th:text="${installment.installment3Amount}"></span></div>
+                                    <div class="installment-date">Due: <span th:text="${#temporals.format(installment.installment3Deadline, 'dd/MM/yyyy')}"></span></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="total-fee">₹<span th:text="${installment.totalFee}"></span></div>
+                            </td>
+                            <td>
+                                <div class="action-buttons-cell">
+                                    <a th:href="@{/route-installments/edit/{id}(id=${installment.id})}" class="btn-action btn-edit">
+                                        <i class="fas fa-edit"></i>Edit
+                                    </a>
+                                    <form th:action="@{/route-installments/delete/{id}(id=${installment.id})}" method="post" style="display:inline;" 
+                                          onsubmit="return confirm('Are you sure you want to delete this route installment configuration?');">
+                                        <button type="submit" class="btn-action btn-delete">
+                                            <i class="fas fa-trash"></i>Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 15;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        
+        // Add entrance animation to cards
+        const cards = document.querySelectorAll('.installments-card, .empty-state');
+        cards.forEach((card, index) => {
+            card.style.animation = `slideInUp 0.6s ease-out ${index * 0.1}s both`;
+        });
+        
+        // Add hover effects to table rows
+        const tableRows = document.querySelectorAll('.table tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 20px rgba(0, 255, 255, 0.1)';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Add click effects to action buttons
+        const actionButtons = document.querySelectorAll('.btn-action');
+        actionButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = event.clientX - rect.left - size / 2;
+                const y = event.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // Add hover effects to main action buttons
+        const mainButtons = document.querySelectorAll('.action-buttons .btn');
+        mainButtons.forEach(button => {
+            button.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 8px 20px rgba(0, 255, 255, 0.2)';
+            });
+            
+            button.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            });
+        });
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn-action {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+        
+        .btn-futuristic {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-futuristic::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-futuristic:hover::before {
+            left: 100%;
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>
-
-

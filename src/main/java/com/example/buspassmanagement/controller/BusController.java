@@ -1,6 +1,7 @@
 package com.example.buspassmanagement.controller;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -33,7 +34,15 @@ public class BusController {
     @GetMapping
     public String listBuses(Model model) {
         try {
-            model.addAttribute("buses", busService.getAllBuses());
+            List<Bus> buses = busService.getAllBuses();
+            model.addAttribute("buses", buses);
+            
+            // Calculate total seats
+            int totalSeats = buses.stream()
+                .mapToInt(Bus::getSeats)
+                .sum();
+            model.addAttribute("totalSeats", totalSeats);
+            
             if (!model.containsAttribute("bus")) {
                 model.addAttribute("bus", new Bus());
             }
@@ -41,6 +50,7 @@ public class BusController {
             System.err.println("ERROR loading bus list: " + e.getMessage());
             model.addAttribute("errorMessage", "Could not load bus information. Please contact support.");
             model.addAttribute("buses", Collections.emptyList());
+            model.addAttribute("totalSeats", 0);
         }
         return "buses";
     }

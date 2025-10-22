@@ -4,125 +4,557 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>My Digital Bus Pass</title>
+    
+    <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome for Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          rel="stylesheet">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
-            background-color: #e9ecef;
+            background: var(--bg-primary);
             font-family: 'Inter', sans-serif;
-        }
-        .pass-container {
-            max-width: 400px;
-            margin: 40px auto;
-            border-radius: 15px;
-            color: white;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            background: linear-gradient(135deg, #343a40, #212529);
-        }
-        .pass-header {
-            background-color: rgba(255, 255, 255, 0.1);
+            min-height: 100vh;
             padding: 20px;
-            border-top-left-radius: 15px;
-            border-top-right-radius: 15px;
-            text-align: center;
         }
-        .pass-body {
+        
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            max-width: 100%;
+        }
+        
+        .pass-container {
+            max-width: 450px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+            margin: 0 auto;
+        }
+        
+        .digital-pass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--glass-shadow);
+        }
+        
+        .digital-pass::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+        
+        .pass-header {
+            background: var(--primary-gradient);
+            color: white;
             padding: 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
         }
-        .qr-code-container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 20px;
+        
+        .pass-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+        
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .pass-title {
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .pass-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .pass-body {
+            padding: 40px 30px;
+            text-align: center;
+            color: var(--text-primary);
+        }
+        
+        .user-info {
+            margin-bottom: 30px;
+        }
+        
+        .user-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+        
+        .user-email {
+            color: var(--text-secondary);
+            font-size: 1rem;
             margin-bottom: 20px;
         }
-        .qr-code-container img {
-            display: block;
+        
+        .route-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .user-details h4 {
-            margin-bottom: 0.25rem;
+        
+        .route-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .route-name {
+            font-size: 1.2rem;
             font-weight: 600;
+            color: var(--accent-cyan);
         }
-        .user-details p {
-            margin-bottom: 1.5rem;
-            opacity: 0.8;
-            font-size: 0.9rem;
+        
+        .qr-container {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            margin: 30px auto;
+            display: inline-block;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
         }
+        
+        .qr-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--primary-gradient);
+            border-radius: 22px;
+            z-index: -1;
+        }
+        
+        .qr-container img {
+            display: block;
+            border-radius: 8px;
+        }
+        
+        .status-section {
+            margin-top: 30px;
+        }
+        
+        .status-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        
         .status-badge {
-            font-size: 1rem;
-            padding: 0.6em 1em;
+            font-size: 1.1rem;
+            padding: 12px 24px;
             font-weight: 700;
             letter-spacing: 0.5px;
+            border-radius: 25px;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: var(--success-gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(79, 172, 254, 0.3);
+        }
+        
+        .status-inactive {
+            background: var(--danger-gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+        }
+        
+        .payment-info {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        .payment-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+        
+        .installment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .installment-item:last-child {
+            border-bottom: none;
+        }
+        
+        .installment-name {
+            color: var(--text-secondary);
+        }
+        
+        .installment-status {
+            font-weight: 600;
+        }
+        
+        .status-paid {
+            color: var(--accent-cyan);
+        }
+        
+        .status-pending {
+            color: #ffa500;
+        }
+        
+        .action-buttons {
+            margin-top: 30px;
+        }
+        
+        .btn-pass {
+            width: 100%;
+            padding: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .security-features {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+        
+        .security-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+        
+        .security-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .security-icon {
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-cyan);
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="text-center mt-4">
-        <a th:href="@{/}" class="btn btn-secondary shadow-sm">← Back to Dashboard</a>
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
+
+<div class="main-container">
+    <div class="text-center mb-4">
+        <a th:href="@{/}" class="btn btn-futuristic btn-secondary-futuristic">
+            <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+        </a>
     </div>
 
     <div class="pass-container">
-        <div class="pass-header">
-            <h5 class="mb-0">STUDENT DIGITAL BUS PASS</h5>
-            <small>Academic Year 2025-2026</small>
-        </div>
-        <div class="pass-body">
-            <div class="user-details">
-                <h4 th:text="${user.name}">Student Name</h4>
-                <p class="text-white-50" th:text="${user.email}">student.email@example.com</p>
-                <div th:if="${busPass != null and busPass.selectedRoute != null}" class="mb-3">
-                    <small class="text-white-50">Route:</small>
-                    <p class="mb-0 fw-bold" th:text="${busPass.selectedRoute}">Route Name</p>
+        <div class="digital-pass">
+            <!-- Pass Header -->
+            <div class="pass-header">
+                <div class="pass-title">Digital Bus Pass</div>
+                <div class="pass-subtitle">Academic Year 2025-2026</div>
+            </div>
+            
+            <!-- Pass Body -->
+            <div class="pass-body">
+                <!-- User Information -->
+                <div class="user-info">
+                    <div class="user-name" th:text="${user.name}">Student Name</div>
+                    <div class="user-email" th:text="${user.email}">student.email@example.com</div>
+                    
+                    <!-- Route Information -->
+                    <div th:if="${busPass != null and busPass.selectedRoute != null}" class="route-info">
+                        <div class="route-label">Selected Route</div>
+                        <div class="route-name" th:text="${busPass.selectedRoute}">Route Name</div>
+                    </div>
                 </div>
-            </div>
-            
-            <div class="qr-code-container">
-                <img th:src="@{'data:image/png;base64,' + ${qrCodeImage}}" alt="Bus Pass QR Code">
-            </div>
-            
-            <div>
-                <h5>PASS STATUS</h5>
-                <span th:text="${passStatus}" 
-                      th:classappend="${passStatus == 'ACTIVE'} ? 'bg-success' : 'bg-danger'"
-                      class="badge rounded-pill status-badge">
-                </span>
-            </div>
+                
+                <!-- QR Code -->
+                <div class="qr-container">
+                    <img th:src="@{'data:image/png;base64,' + ${qrCodeImage}}" alt="Bus Pass QR Code">
+                </div>
+                
+                <!-- Status Section -->
+                <div class="status-section">
+                    <div class="status-title">Pass Status</div>
+                    <span th:text="${passStatus}" 
+                          th:classappend="${passStatus == 'ACTIVE'} ? 'status-badge status-active' : 'status-badge status-inactive'">
+                    </span>
+                </div>
 
-            <!-- Payment Status Details -->
-            <div th:if="${passStatus == 'INACTIVE'}" class="mt-3">
-                <div class="alert alert-warning mt-3 mx-auto" style="max-width: 300px;">
-                    <small>
-                        <strong>⚠ Pass Inactive</strong><br>
-                        <span th:if="${busPass == null or busPass.selectedRoute == null}">Please select a route and pay fees.</span>
-                        <span th:if="${busPass != null and busPass.selectedRoute != null && paymentStatus != null}">
-                            <span th:if="${!paymentStatus.hasInstallment1}">• Installment 1: Pending<br></span>
-                            <span th:if="${!paymentStatus.hasInstallment2}">• Installment 2: Pending<br></span>
-                            <span th:if="${!paymentStatus.hasInstallment3}">• Installment 3: Pending<br></span>
-                        </span>
-                    </small>
-                    <a th:href="@{/payments/installments}" class="btn btn-warning btn-sm mt-2 w-100">
-                        <small>Pay Now</small>
-                    </a>
+                <!-- Payment Status Details -->
+                <div th:if="${passStatus == 'INACTIVE'}" class="payment-info">
+                    <div class="payment-title">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Payment Required
+                    </div>
+                    <div th:if="${busPass == null or busPass.selectedRoute == null}">
+                        <p class="text-secondary mb-3">Please select a route and pay fees to activate your pass.</p>
+                    </div>
+                    <div th:if="${busPass != null and busPass.selectedRoute != null && paymentStatus != null}">
+                        <div class="installment-item">
+                            <span class="installment-name">Installment 1</span>
+                            <span th:classappend="${!paymentStatus.hasInstallment1} ? 'installment-status status-pending' : 'installment-status status-paid'"
+                                  th:text="${!paymentStatus.hasInstallment1} ? 'Pending' : 'Paid'"></span>
+                        </div>
+                        <div class="installment-item">
+                            <span class="installment-name">Installment 2</span>
+                            <span th:classappend="${!paymentStatus.hasInstallment2} ? 'installment-status status-pending' : 'installment-status status-paid'"
+                                  th:text="${!paymentStatus.hasInstallment2} ? 'Pending' : 'Paid'"></span>
+                        </div>
+                        <div class="installment-item">
+                            <span class="installment-name">Installment 3</span>
+                            <span th:classappend="${!paymentStatus.hasInstallment3} ? 'installment-status status-pending' : 'installment-status status-paid'"
+                                  th:text="${!paymentStatus.hasInstallment3} ? 'Pending' : 'Paid'"></span>
+                        </div>
+                    </div>
+                    <div class="action-buttons">
+                        <a th:href="@{/payments/installments}" class="btn btn-futuristic btn-warning-futuristic btn-pass">
+                            <i class="fas fa-credit-card me-2"></i>Pay Now
+                        </a>
+                    </div>
                 </div>
-            </div>
 
-            <div th:if="${passStatus == 'ACTIVE'}" class="mt-3">
-                <div class="alert alert-success mt-3 mx-auto" style="max-width: 300px;">
-                    <small>
-                        <strong>✓ All fees paid!</strong><br>
-                        Your bus pass is active and valid.
-                    </small>
+                <div th:if="${passStatus == 'ACTIVE'}" class="payment-info">
+                    <div class="payment-title">
+                        <i class="fas fa-check-circle me-2"></i>All Fees Paid
+                    </div>
+                    <p class="text-secondary mb-0">Your bus pass is active and valid for the academic year.</p>
+                </div>
+                
+                <!-- Security Features -->
+                <div class="security-features">
+                    <div class="security-text">Security Features</div>
+                    <div class="security-icons">
+                        <div class="security-icon" title="Encrypted QR Code">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div class="security-icon" title="Digital Signature">
+                            <i class="fas fa-signature"></i>
+                        </div>
+                        <div class="security-icon" title="Non-transferable">
+                            <i class="fas fa-user-lock"></i>
+                        </div>
+                    </div>
+                    <p class="text-muted small mt-2">This pass is non-transferable and digitally secured.</p>
                 </div>
             </div>
-            
-            <p class="mt-4 small text-white-50">This pass is non-transferable.</p>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 12;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
+        }
+    }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        
+        // Add entrance animation to pass
+        const pass = document.querySelector('.digital-pass');
+        pass.style.animation = 'slideInUp 0.8s ease-out';
+        
+        // Add glow effect to QR code
+        const qrContainer = document.querySelector('.qr-container');
+        qrContainer.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+            this.style.boxShadow = '0 15px 40px rgba(0, 255, 255, 0.3)';
+        });
+        
+        qrContainer.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+            this.style.boxShadow = '0 10px 30px rgba(0, 0, 0, 0.2)';
+        });
+        
+        // Add pulse animation to status badge
+        const statusBadge = document.querySelector('.status-badge');
+        if (statusBadge) {
+            statusBadge.style.animation = 'pulse 2s ease-in-out infinite';
+        }
+        
+        // Add click effect to buttons
+        const buttons = document.querySelectorAll('.btn-pass');
+        buttons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = event.clientX - rect.left - size / 2;
+                const y = event.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+    });
+    
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .btn-pass {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+
 </body>
 </html>
