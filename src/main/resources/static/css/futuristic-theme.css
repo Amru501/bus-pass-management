@@ -160,7 +160,7 @@ body::after {
 }
 
 .btn-info-futuristic {
-    background: var(--info-gradient);
+    background: linear-gradient(55,33,33,33,33);
 }
 
 /* Futuristic Form Controls */

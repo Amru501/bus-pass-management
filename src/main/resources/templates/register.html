@@ -1,115 +1,205 @@
 <!DOCTYPE html>
-<html lang="en" 
-      xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Bus Pass Management</title>
+    
     <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" 
-          rel="stylesheet" 
-          crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
     <!-- Font Awesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
           rel="stylesheet">
-    <!-- Custom style -->
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" 
+          rel="stylesheet">
+    
+    <!-- Custom Futuristic Theme -->
+    <link href="/css/futuristic-theme.css" rel="stylesheet">
+    
     <style>
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
+            background: var(--bg-primary);
             font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 10px 0;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+            overflow-x: hidden;
             overflow-y: auto;
             position: relative;
         }
         
-        #background-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .register-container {
+            max-width: 450px;
             width: 100%;
-            height: 100%;
-            z-index: -1;
-            background-color: #1a1a2e; /* Dark blue background */
+            position: relative;
+            z-index: 10;
         }
 
         .register-card {
-            max-width: 450px;
-            width: 100%;
-            padding: 12px 18px;
-            border-radius: 0.8rem;
-            background-color: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(8px);
-            z-index: 1;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--glass-shadow);
+            position: relative;
+            overflow: hidden;
         }
         
-        .register-card .card-body {
-            padding: 0.3rem;
+        .register-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
         }
         
-        .register-card .mb-2 {
-            margin-bottom: 0.3rem !important;
+        .register-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.1) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
         }
         
-        .register-card .mb-3 {
-            margin-bottom: 0.4rem !important;
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
-        .register-card .mb-4 {
-            margin-bottom: 0.5rem !important;
+        .brand-section {
+            text-align: center;
+            margin-bottom: 25px;
+            position: relative;
+            z-index: 2;
         }
         
-        .register-card h3 {
-            margin-bottom: 0.3rem !important;
-            font-size: 1.25rem;
+        .brand-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 24px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.3);
         }
         
-        .register-card p {
-            margin-bottom: 0.4rem !important;
-            font-size: 0.8rem;
+        .brand-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
         }
         
-        .register-card .form-label {
-            margin-bottom: 0.15rem;
-            font-size: 0.8rem;
-            font-weight: 500;
-        }
-        
-        .register-card .form-control,
-        .register-card .form-select {
-            padding: 0.35rem 0.6rem;
-            font-size: 0.875rem;
-        }
-        
-        .register-card .btn {
-            padding: 0.45rem;
+        .brand-subtitle {
+            color: var(--text-secondary);
             font-size: 0.9rem;
+            margin-bottom: 0;
         }
         
-        .register-card small {
-            font-size: 0.7rem;
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 2;
         }
         
-        .register-card .alert {
-            padding: 0.4rem;
-            font-size: 0.8rem;
-            margin-bottom: 0.4rem;
+        .form-label {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        .register-card .invalid-feedback {
-            font-size: 0.7rem;
+        .form-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
         
-        /* Password input styling for toggle button */
-        .position-relative input[type="password"] {
-            padding-right: 50px !important;
+        .form-control:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+            outline: none;
         }
         
-        /* Password Toggle Button */
+        .form-control::placeholder {
+            color: var(--text-secondary);
+        }
+        
+        .form-control.is-invalid {
+            border-color: var(--accent-danger);
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .form-control.is-invalid:focus {
+            border-color: var(--accent-danger);
+            box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+        }
+        
+        .form-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            padding: 10px 14px;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .form-select:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+            outline: none;
+        }
+        
+        .form-select option {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        
+        .invalid-feedback {
+            color: var(--accent-danger);
+            font-size: 0.875rem;
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .required-indicator {
+            color: var(--accent-danger);
+            font-weight: 700;
+        }
+        
         .password-toggle-btn {
             position: absolute;
             right: 15px;
@@ -117,7 +207,7 @@
             transform: translateY(-50%);
             background: none;
             border: none;
-            color: #6c757d;
+            color: var(--text-secondary);
             font-size: 14px;
             cursor: pointer;
             padding: 4px;
@@ -132,78 +222,302 @@
         }
         
         .password-toggle-btn:hover {
-            color: #0d6efd;
-            background: rgba(13, 110, 253, 0.1);
+            color: var(--accent-cyan);
+            background: rgba(0, 255, 255, 0.1);
         }
         
         .password-toggle-btn:focus {
             outline: none;
-            box-shadow: 0 0 0 2px rgba(13, 110, 253, 0.3);
+            box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.3);
+        }
+        
+        .position-relative input[type="password"] {
+            padding-right: 50px !important;
+        }
+        
+        .register-btn {
+            background: var(--primary-gradient);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 14px;
+            width: 100%;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 255, 255, 0.2);
+            margin-bottom: 18px;
+            z-index: 10;
+        }
+        
+        .register-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(0, 255, 255, 0.3);
+        }
+        
+        .register-btn:hover::before {
+            left: 100%;
+        }
+        
+        .login-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .login-link:hover {
+            color: var(--accent-cyan);
+            text-decoration: none;
+        }
+        
+        .alert {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            position: relative;
+            overflow: hidden;
+            font-size: 0.9rem;
+        }
+        
+        .alert-warning {
+            border-color: var(--accent-warning);
+            background: rgba(255, 193, 7, 0.1);
+        }
+        
+        .alert-warning::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-warning);
+        }
+        
+        .alert-danger {
+            border-color: var(--accent-danger);
+            background: rgba(255, 107, 107, 0.1);
+        }
+        
+        .alert-danger::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--accent-danger);
+        }
+        
+        .floating-elements {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-element {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            animation: floatUp 10s linear infinite;
+        }
+        
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+        
+        .page-enter {
+            animation: slideInUp 0.6s ease-out both;
+        }
+        
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .register-container {
+                max-width: 380px;
+            }
+            
+            .register-card {
+                padding: 25px;
+            }
+            
+            .brand-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+            
+            .brand-title {
+                font-size: 1.5rem;
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-control, .form-select {
+                padding: 9px 12px;
+                font-size: 0.9rem;
+            }
+            
+            .register-btn {
+                padding: 12px;
+                font-size: 14px;
+                margin-bottom: 16px;
+            }
+            
+            .login-link {
+                font-size: 12px;
+            }
         }
     </style>
 </head>
 <body>
 
-<!-- Canvas for the background animation -->
-<canvas id="background-canvas"></canvas>
+<!-- Floating Elements -->
+<div class="floating-elements" id="floatingElements"></div>
 
-<div class="card register-card shadow-lg border-0">
-    <div class="card-body">
-        <h3 class="card-title text-center mb-2 text-primary">Registration</h3>
-        <p class="text-center text-muted mb-3">Register as Student or Admin</p>
+<div class="register-container page-enter">
+    <div class="register-card">
+        <div class="brand-section">
+            <div class="brand-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h1 class="brand-title">Registration</h1>
+            <p class="brand-subtitle">Register as Student or Admin</p>
+        </div>
         
         <form th:action="@{/register}" th:object="${user}" method="post">
             
-            <div th:if="${#fields.hasAnyErrors()}" class="alert alert-warning">
+            <div th:if="${#fields.hasAnyErrors()}" class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
                 Please correct the errors below.
             </div>
             
-            <div th:if="${emailError}" class="alert alert-danger" th:text="${emailError}"></div>
-            <div th:if="${securityKeyError}" class="alert alert-danger" th:text="${securityKeyError}"></div>
-
-            <div class="mb-3">
-                <label for="name" class="form-label">Full Name</label>
-                <input type="text" th:field="*{name}" class="form-control" th:errorclass="is-invalid" id="name" placeholder="John Doe" required>
-                <div class="invalid-feedback" th:errors="*{name}"></div>
+            <div th:if="${emailError}" class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${emailError}"></span>
+            </div>
+            <div th:if="${securityKeyError}" class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <span th:text="${securityKeyError}"></span>
             </div>
 
-            <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+            <div class="form-group">
+                <label for="name" class="form-label">
+                    <i class="fas fa-user"></i>Full Name
+                </label>
+                <input type="text" th:field="*{name}" class="form-control" th:errorclass="is-invalid" id="name" placeholder="John Doe" required>
+                <div class="invalid-feedback" th:errors="*{name}">
+                    <i class="fas fa-exclamation-circle"></i>Name error
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email" class="form-label">
+                    <i class="fas fa-envelope"></i>Email Address
+                </label>
                 <input type="email" th:field="*{email}" class="form-control" th:errorclass="is-invalid" id="email" placeholder="name@example.com" required>
-                <div class="invalid-feedback" th:errors="*{email}"></div>
+                <div class="invalid-feedback" th:errors="*{email}">
+                    <i class="fas fa-exclamation-circle"></i>Email error
+                </div>
             </div>
             
-            <div class="mb-3">
-                <label for="phone" class="form-label">Phone Number</label>
-                <input type="tel" th:field="*{phone}" class="form-control" id="phone" required pattern="[0-9]{10}" title="Enter a 10-digit phone number">
-                <div class="invalid-feedback" th:errors="*{phone}"></div>
+            <div class="form-group">
+                <label for="phone" class="form-label">
+                    <i class="fas fa-phone"></i>Phone Number
+                </label>
+                <input type="tel" th:field="*{phone}" class="form-control" id="phone" required pattern="[0-9]{10}" title="Enter a 10-digit phone number" placeholder="1234567890">
+                <div class="invalid-feedback" th:errors="*{phone}">
+                    <i class="fas fa-exclamation-circle"></i>Phone error
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
+            <div class="form-group">
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i>Password
+                </label>
                 <div class="position-relative">
-                    <input type="password" th:field="*{password}" class="form-control" th:errorclass="is-invalid" id="password" placeholder="••••••••" required>
+                <input type="password" th:field="*{password}" class="form-control" th:errorclass="is-invalid" id="password" placeholder="••••••••" required>
                     <button type="button" class="password-toggle-btn" onclick="togglePassword('password')">
                         <i class="fas fa-eye" id="password-eye"></i>
                     </button>
                 </div>
-                <div class="invalid-feedback" th:errors="*{password}"></div>
+                <div class="invalid-feedback" th:errors="*{password}">
+                    <i class="fas fa-exclamation-circle"></i>Password error
+                </div>
             </div>
 
-            <div class="mb-3">
-                <label for="role" class="form-label">Register As</label>
+            <div class="form-group">
+                <label for="role" class="form-label">
+                    <i class="fas fa-user-tag"></i>Register As
+                </label>
                 <select class="form-select" id="role" name="role" th:field="*{role}" onchange="toggleSecurityKey()" required>
                     <option value="USER" selected>Student</option>
                     <option value="ADMIN">Admin</option>
                 </select>
             </div>
 
-            <div class="mb-4" id="securityKeyDiv" style="display: none;">
+            <div class="form-group" id="securityKeyDiv" style="display: none;">
                 <label for="securityKey" class="form-label">
-                    Admin Security Key <span class="text-danger">*</span>
+                    <i class="fas fa-key"></i>Admin Security Key
+                    <span class="required-indicator">*</span>
                 </label>
                 <div class="position-relative">
-                    <input type="password" class="form-control" id="securityKey" name="securityKey" placeholder="Enter admin security key">
+                <input type="password" class="form-control" id="securityKey" name="securityKey" placeholder="Enter admin security key">
                     <button type="button" class="password-toggle-btn" onclick="togglePassword('securityKey')">
                         <i class="fas fa-eye" id="securityKey-eye"></i>
                     </button>
@@ -211,129 +525,36 @@
                 <small class="text-muted">Required for admin registration</small>
             </div>
 
-            <div class="d-grid mb-2">
-                <button type="submit" class="btn btn-primary shadow-sm">Register</button>
-            </div>
+            <button type="submit" class="register-btn">
+                <i class="fas fa-user-plus me-2"></i>Register
+            </button>
             
-            <div class="text-center mt-1">
-                <p class="text-muted mb-0" style="font-size: 0.85rem;">Already have an account? <a th:href="@{/login}" class="text-decoration-none">Login here</a></p>
+            <div class="text-center">
+                <a th:href="@{/login}" class="login-link">
+                    <i class="fas fa-sign-in-alt me-2"></i>Already have an account? Login here
+                </a>
             </div>
         </form>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- JavaScript for the animated route map -->
 <script>
-    const canvas = document.getElementById('background-canvas');
-    const ctx = canvas.getContext('2d');
-
-    let width, height;
-    const dots = [];
-    const buses = [];
-    const dotCount = 200;
-    const busCount = 10;
-    const routes = [
-        [{x: 0.1, y: 0.2}, {x: 0.4, y: 0.8}, {x: 0.9, y: 0.3}],
-        [{x: 0.8, y: 0.1}, {x: 0.2, y: 0.5}, {x: 0.8, y: 0.9}],
-        [{x: 0.2, y: 0.9}, {x: 0.9, y: 0.6}, {x: 0.1, y: 0.1}]
-    ];
-
-    function resizeCanvas() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-    }
-
-    class Dot {
-        constructor() {
-            this.x = Math.random() * width;
-            this.y = Math.random() * height;
-            this.radius = Math.random() * 1.5;
-            this.alpha = Math.random() * 0.5 + 0.2;
-        }
-
-        draw() {
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.alpha})`;
-            ctx.fill();
+    // Create floating elements
+    function createFloatingElements() {
+        const container = document.getElementById('floatingElements');
+        const elementCount = 15;
+        
+        for (let i = 0; i < elementCount; i++) {
+            const element = document.createElement('div');
+            element.className = 'floating-element';
+            element.style.left = Math.random() * 100 + '%';
+            element.style.animationDelay = Math.random() * 10 + 's';
+            element.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            container.appendChild(element);
         }
     }
-    
-    class Bus {
-        constructor() {
-            this.route = routes[Math.floor(Math.random() * routes.length)];
-            this.segment = 0;
-            this.progress = Math.random();
-            this.speed = Math.random() * 0.002 + 0.001;
-        }
-
-        update() {
-            this.progress += this.speed;
-            if (this.progress >= 1) {
-                this.progress = 0;
-                this.segment = (this.segment + 1) % this.route.length;
-            }
-        }
-
-        draw() {
-            const start = this.route[this.segment];
-            const end = this.route[(this.segment + 1) % this.route.length];
-            
-            const currentX = (start.x + (end.x - start.x) * this.progress) * width;
-            const currentY = (start.y + (end.y - start.y) * this.progress) * height;
-
-            ctx.beginPath();
-            ctx.arc(currentX, currentY, 3, 0, Math.PI * 2);
-            ctx.fillStyle = '#0d6efd';
-            ctx.shadowColor = '#0d6efd';
-            ctx.shadowBlur = 10;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-        }
-    }
-    
-    function init() {
-        for (let i = 0; i < dotCount; i++) {
-            dots.push(new Dot());
-        }
-        for (let i = 0; i < busCount; i++) {
-            buses.push(new Bus());
-        }
-    }
-
-    function animate() {
-        ctx.clearRect(0, 0, width, height);
-        dots.forEach(dot => dot.draw());
-        ctx.strokeStyle = 'rgba(13, 110, 253, 0.2)';
-        ctx.lineWidth = 1;
-        routes.forEach(route => {
-            ctx.beginPath();
-            ctx.moveTo(route[0].x * width, route[0].y * height);
-            for(let i = 1; i < route.length; i++) {
-                ctx.lineTo(route[i].x * width, route[i].y * height);
-            }
-            ctx.closePath();
-            ctx.stroke();
-        });
-        buses.forEach(bus => {
-            bus.update();
-            bus.draw();
-        });
-        requestAnimationFrame(animate);
-    }
-
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-        dots.length = 0;
-        buses.length = 0;
-        init();
-    });
-
-    resizeCanvas();
-    init();
-    animate();
 
     // Function to toggle security key field visibility
     function toggleSecurityKey() {
@@ -351,11 +572,6 @@
         }
     }
 
-    // Check on page load if role is already set to ADMIN (in case of validation errors)
-    document.addEventListener('DOMContentLoaded', function() {
-        toggleSecurityKey();
-    });
-    
     // Password toggle functionality
     function togglePassword(fieldId) {
         const passwordField = document.getElementById(fieldId);
@@ -371,6 +587,102 @@
             eyeIcon.classList.add('fa-eye');
         }
     }
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        createFloatingElements();
+        toggleSecurityKey();
+        
+        // Add focus effects to form elements
+        const formElements = document.querySelectorAll('.form-control, .form-select');
+        formElements.forEach(element => {
+            element.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+                this.parentElement.style.transition = 'transform 0.3s ease';
+            });
+            
+            element.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add click effect to submit button (without preventing form submission)
+        const submitButton = document.querySelector('.register-btn');
+        if (submitButton) {
+            submitButton.addEventListener('click', function(event) {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = event.clientX - rect.left - size / 2;
+                const y = event.clientY - rect.top - size / 2;
+                
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+                
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+                
+                // Add loading state only after form validation passes
+                setTimeout(() => {
+                    if (this.form.checkValidity()) {
+                        this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Registering...';
+                        this.disabled = true;
+                    }
+                }, 100);
+            });
+        }
+        
+        // Add hover effects to login link
+        const loginLink = document.querySelector('.login-link');
+        if (loginLink) {
+            loginLink.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(-5px)';
+                this.style.transition = 'transform 0.3s ease';
+            });
+            
+            loginLink.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+            
+            // Ensure the link is clickable
+            loginLink.addEventListener('click', function(e) {
+                console.log('Login link clicked');
+                // Let the default behavior happen (navigation)
+            });
+        }
+    });
+    
+    // Add CSS for ripple effect
+    const style = document.createElement('style');
+    style.textContent = `
+        .register-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            pointer-events: none;
+        }
+        
+        @keyframes ripple-animation {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 </script>
 
 </body>
