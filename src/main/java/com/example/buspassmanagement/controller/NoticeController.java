@@ -1,7 +1,6 @@
 package com.example.buspassmanagement.controller;
 
 import java.security.Principal;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -85,15 +84,13 @@ public class NoticeController {
 
         try {
             if ("ALL".equalsIgnoreCase(busIdValue)) {
-                List<Bus> allBuses = busService.getAllBuses();
-                for (Bus bus : allBuses) {
-                    Notice newNotice = new Notice();
-                    newNotice.setMessage(notice.getMessage());
-                    newNotice.setPostedBy(poster);
-                    newNotice.setBus(bus);
-                    noticeService.addNotice(newNotice);
-                }
-                redirectAttributes.addFlashAttribute("successMessage", "Notice successfully posted to all " + allBuses.size() + " routes.");
+                // Create a single notice with bus = null for "All Buses"
+                Notice newNotice = new Notice();
+                newNotice.setMessage(notice.getMessage());
+                newNotice.setPostedBy(poster);
+                newNotice.setBus(null); // null indicates "All Buses"
+                noticeService.addNotice(newNotice);
+                redirectAttributes.addFlashAttribute("successMessage", "Notice successfully posted to all buses.");
             } else {
                 Long busId = Long.parseLong(busIdValue);
                 Bus targetBus = busService.getBusById(busId);

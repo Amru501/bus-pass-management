@@ -26,5 +26,13 @@ public class DriverService {
     public Optional<Driver> findByEmail(String email) {
         return driverRepository.findByEmail(email);
     }
+    
+    public Optional<Driver> findById(Long id) {
+        return driverRepository.findById(id);
+    }
+    
+    public void deleteDriver(Long id) {
+        driverRepository.deleteById(id);
+    }
 }
 

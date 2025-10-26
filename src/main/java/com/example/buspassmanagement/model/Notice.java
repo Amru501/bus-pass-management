@@ -36,9 +36,9 @@ public class Notice {
 
     // *** FIX APPLIED HERE ***
     // Removed @NotNull validation. The controller logic is responsible for assigning this object
-    // before saving, and the database constraint `nullable = false` provides the final integrity check.
+    // before saving. Made nullable to support "All Buses" notices.
     @ManyToOne
-    @JoinColumn(name = "bus_id", nullable = false)
+    @JoinColumn(name = "bus_id", nullable = true)
     private Bus bus;
     
     // *** FIX APPLIED HERE ***

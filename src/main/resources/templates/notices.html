@@ -361,11 +361,15 @@
         <div th:each="notice : ${notices}" class="notice-card">
             <div class="notice-header">
                 <div class="bus-info">
-                    <div class="bus-number">
+                    <div class="bus-number" th:if="${notice.bus != null}">
                         <i class="fas fa-bus"></i>
-                    Bus <span th:text="${notice.bus.busNumber}">MH 01 AB 1234</span>
+                        Bus <span th:text="${notice.bus.busNumber}">MH 01 AB 1234</span>
                     </div>
-                    <span class="route-badge" th:text="${notice.bus.route}">Route A</span>
+                    <div class="bus-number" th:if="${notice.bus == null}">
+                        <i class="fas fa-bus"></i>
+                        <span style="font-weight: 700; color: var(--primary-color);">All Buses</span>
+                    </div>
+                    <span class="route-badge" th:text="${notice.bus != null ? notice.bus.route : 'All Routes'}">Route A</span>
                 </div>
                 <div class="notice-timestamp">
                     <i class="fas fa-clock"></i>

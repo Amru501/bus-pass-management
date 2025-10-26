@@ -68,8 +68,12 @@ public class BusController {
             redirectAttributes.addFlashAttribute("bus", bus);
             return "redirect:/buses";
         }
-        busService.saveBus(bus);
-        redirectAttributes.addFlashAttribute("successMessage", "Bus added successfully!");
+        try {
+            busService.saveBus(bus);
+            redirectAttributes.addFlashAttribute("successMessage", "Bus added successfully!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error adding bus: " + e.getMessage());
+        }
         return "redirect:/buses";
     }
 
@@ -110,8 +114,26 @@ public class BusController {
     @GetMapping("/delete/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public String deleteBus(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        busService.deleteBus(id);
-        redirectAttributes.addFlashAttribute("successMessage", "Bus deleted successfully.");
+        try {
+            Bus bus = busService.getBusById(id);
+            if (bus == null) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Bus not found.");
+                return "redirect:/buses";
+            }
+            
+            // Delete all related entities first
+            // 1. Delete all drivers assigned to this bus
+            busService.deleteDriversForBus(id);
+            
+            // 2. Delete all notices for this bus
+            busService.deleteNoticesForBus(id);
+            
+            busService.deleteBus(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Bus deleted successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", 
+                "Error deleting bus: " + e.getMessage());
+        }
         return "redirect:/buses";
     }
 }
